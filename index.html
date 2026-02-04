@@ -335,9 +335,21 @@
             <a href="#" class="footer-brand" aria-label="Leia+">
                 <img src="img/logo.png" alt="Leia+" class="footer-logo">
             </a>
-            <div class="footer-links">
-                <span id="sync-source" class="sync-source"></span>
-                <span id="sync-status" class="sync-status" aria-live="polite"></span>
+            <div class="footer-links" id="sync-container">
+                <div class="sync-badge" id="sync-badge" aria-live="polite">
+                    <div class="sync-particles">
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="sync-content">
+                        <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+                        <div class="sync-text">
+                            <span class="sync-label">Sincronizado com a nuvem</span>
+                            <span class="sync-sublabel" id="sync-status">Tempo real</span>
+                        </div>
+                        <span class="sync-pulse"></span>
+                    </div>
+                </div>
+                <div class="sync-fallback" id="sync-fallback"></div>
             </div>
         </div>
     </footer>

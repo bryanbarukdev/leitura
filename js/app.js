@@ -825,8 +825,7 @@
             
             saveToLocalStorage() {
                 if (SUPABASE_CONFIGURED && supabaseClient) {
-                    const statusEl = document.getElementById('sync-status');
-                    if (statusEl) { statusEl.textContent = 'Enviando…'; statusEl.className = 'sync-status syncing'; }
+                    updateSyncUI('', 'Enviando…', 'syncing');
                     pushToSupabase(this.books).then(({ ok, error }) => {
                         if (ok) {
                             updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
@@ -1210,12 +1209,20 @@
         let realtimeChannel = null;
         
         function updateSyncUI(source, status, statusClass) {
-            const sourceEl = document.getElementById('sync-source');
+            const badge = document.getElementById('sync-badge');
             const statusEl = document.getElementById('sync-status');
-            if (sourceEl) sourceEl.textContent = source;
-            if (statusEl) {
-                statusEl.textContent = status;
-                statusEl.className = 'sync-status' + (statusClass ? ' ' + statusClass : '');
+            const fallback = document.getElementById('sync-fallback');
+            const isSupabase = status !== 'Fonte: dados-leitura.json ou navegador';
+            if (badge) {
+                badge.style.display = isSupabase ? 'flex' : 'none';
+                badge.classList.remove('sync-badge--syncing', 'sync-badge--error');
+                if (statusClass === 'syncing') badge.classList.add('sync-badge--syncing');
+                else if (statusClass === 'error') badge.classList.add('sync-badge--error');
+            }
+            if (statusEl) statusEl.textContent = status || 'Tempo real';
+            if (fallback) {
+                fallback.textContent = isSupabase ? '' : status;
+                fallback.style.display = isSupabase ? 'none' : 'block';
             }
         }
         
