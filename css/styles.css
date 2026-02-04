@@ -413,6 +413,10 @@
             overflow: hidden;
         }
         
+        .section.collapsible.collapsed {
+            margin-bottom: 0;
+        }
+        
         .collapsible-header {
             width: 100%;
             display: flex;
@@ -466,22 +470,18 @@
             display: grid;
             grid-template-rows: 1fr;
             transition: grid-template-rows 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+            overflow: hidden;
         }
         
         .section.collapsible.collapsed .collapsible-body {
             grid-template-rows: 0fr;
+            min-height: 0;
         }
         
         .collapsible-body-inner {
             min-height: 0;
             overflow: hidden;
-        }
-        
-        .section.collapsible .collapsible-body-inner {
             padding: 0 var(--space) var(--space);
-        }
-        
-        .section.collapsible .collapsible-body-inner > *:first-child {
             padding-top: var(--space);
         }
         
