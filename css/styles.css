@@ -492,7 +492,7 @@
         }
         
         .section.collapsible.collapsed {
-            margin-bottom: 0;
+            /* margin-bottom: 0; */
         }
         
         .collapsible-header {
