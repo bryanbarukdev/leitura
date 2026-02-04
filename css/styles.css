@@ -374,6 +374,7 @@
             cursor: grab;
             user-select: none;
             padding-right: 10px;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .genre-chips::-webkit-scrollbar {
@@ -404,15 +405,28 @@
             -webkit-appearance: none;
             appearance: none;
             box-shadow: inset 0 0 0 1px var(--border);
+            -webkit-tap-highlight-color: transparent;
         }
         
         .genre-chips .genre-chip:focus {
             outline: none;
         }
         
-        .genre-chips .genre-chip:hover {
+        .genre-chips .genre-chip:active {
             box-shadow: inset 0 0 0 1px var(--text-soft);
             color: var(--text);
+        }
+        
+        @media (hover: hover) {
+            .genre-chips .genre-chip:hover {
+                box-shadow: inset 0 0 0 1px var(--text-soft);
+                color: var(--text);
+            }
+            .genre-chips .genre-chip:hover.selected {
+                background: var(--accent-soft);
+                box-shadow: inset 0 0 0 1px var(--accent);
+                color: var(--accent-hover);
+            }
         }
         
         .genre-chips .genre-chip.selected {
