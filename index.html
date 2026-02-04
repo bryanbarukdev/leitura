@@ -76,10 +76,7 @@
     
     <section class="dashboard-section" id="dashboard-section">
         <div class="section-badge">Sua biblioteca</div>
-        <div class="dashboard-header">
-            <h2 class="dashboard-title">Dashboard</h2>
-            <a href="#meus-livros" class="btn-ver-livros">Ver meus livros ↓</a>
-        </div>
+        <h2 class="dashboard-title">Dashboard</h2>
         <div class="stats-overview" id="stats-overview">
             <div class="stat-pill">
                 <span class="stat-pill-value" id="stat-total-books">0</span>
@@ -102,16 +99,24 @@
     
     <div class="container app-container">
         <div class="left-column">
-            <div class="book-library" id="meus-livros">
-                <h2 class="library-title">Meus Livros</h2>
-                <div class="books-grid" id="books-container">
+            <div class="section collapsible book-list" id="meus-livros" data-collapse-key="meus-livros">
+                <button type="button" class="collapsible-header" aria-expanded="true" aria-controls="books-container-wrap">
+                    <h2>Meus Livros</h2>
+                    <span class="collapsible-icon" aria-hidden="true"></span>
+                </button>
+                <div class="collapsible-body" id="books-container-wrap">
+                <div id="books-container">
                     <!-- Livros serão carregados aqui via JavaScript -->
+                </div>
                 </div>
             </div>
             
-            <div class="section" id="mobile-panel-form">
-                <div class="section-badge section-badge-inline">Adicionar</div>
-                <h2>Cadastrar Novo Livro</h2>
+            <div class="section collapsible" id="mobile-panel-form" data-collapse-key="cadastrar-livro">
+                <button type="button" class="collapsible-header" aria-expanded="true" aria-controls="book-form-wrap">
+                    <h2>Cadastrar Novo Livro</h2>
+                    <span class="collapsible-icon" aria-hidden="true"></span>
+                </button>
+                <div class="collapsible-body" id="book-form-wrap">
                 <form id="book-form" autocomplete="off">
                     <div class="form-group">
                         <label for="book-title">Título do Livro *</label>
@@ -179,6 +184,7 @@
                         <button type="button" id="clear-form" class="btn-secondary">Limpar</button>
                     </div>
                 </form>
+                </div>
             </div>
             
         </div>

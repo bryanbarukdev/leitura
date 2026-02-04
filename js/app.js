@@ -271,6 +271,27 @@
                 document.getElementById('reading-form').addEventListener('input', () => { this.detailFormDirty = true; });
                 document.getElementById('reading-form').addEventListener('change', () => { this.detailFormDirty = true; });
                 
+                // Cards minimizáveis
+                const COLLAPSE_KEY = 'readingPanelCollapsed';
+                document.querySelectorAll('.section.collapsible').forEach(section => {
+                    const header = section.querySelector('.collapsible-header');
+                    const body = section.querySelector('.collapsible-body');
+                    const key = section.dataset.collapseKey;
+                    if (!header || !body || !key) return;
+                    const saved = localStorage.getItem(COLLAPSE_KEY);
+                    const state = saved ? JSON.parse(saved) : {};
+                    if (state[key] === true) {
+                        section.classList.add('collapsed');
+                        header.setAttribute('aria-expanded', 'false');
+                    }
+                    header.addEventListener('click', () => {
+                        const isCollapsed = section.classList.toggle('collapsed');
+                        header.setAttribute('aria-expanded', !isCollapsed);
+                        state[key] = isCollapsed;
+                        localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
+                    });
+                });
+                
                 // Limpar formulário
                 document.getElementById('clear-form').addEventListener('click', () => {
                     document.getElementById('book-form').reset();
@@ -805,35 +826,40 @@
                 const container = document.getElementById('books-container');
                 
                 if (this.books.length === 0) {
-                    container.innerHTML = '<div class="library-empty">Nenhum livro cadastrado ainda.<br><span>Adicione um novo livro abaixo</span></div>';
+                    container.innerHTML = '<div class="no-data">Nenhum livro cadastrado ainda</div>';
                     return;
                 }
                 
                 container.innerHTML = '';
                 
                 this.books.forEach(book => {
+                    // Calcular progresso
                     const totalPages = book.pages;
                     const pagesRead = this.calculatePagesRead(book);
                     const progress = totalPages > 0 ? (pagesRead / totalPages) * 100 : 0;
-                    const isSelected = this.selectedBookId === book.id;
                     
-                    const bookEl = document.createElement('button');
-                    bookEl.type = 'button';
-                    bookEl.className = `library-book ${isSelected ? 'selected' : ''}`;
-                    bookEl.setAttribute('aria-pressed', isSelected);
-                    bookEl.setAttribute('aria-label', `${book.title}, ${book.author} — ${progress.toFixed(0)}% lido`);
-                    bookEl.innerHTML = `
-                        <span class="library-book-cover">
-                            <img src="${book.coverUrl || 'https://via.placeholder.com/120x180/1a1a1a/555?text=Capa'}" alt="">
-                        </span>
-                        <span class="library-book-info">
-                            <span class="library-book-title">${book.title}</span>
-                            <span class="library-book-author">${book.author}</span>
-                            <span class="library-book-progress" style="--progress: ${progress}%"></span>
-                        </span>
+                    const bookElement = document.createElement('div');
+                    bookElement.className = `book-card ${this.selectedBookId === book.id ? 'selected' : ''}`;
+                    bookElement.innerHTML = `
+                        <div class="book-cover-wrap">
+                            <img src="${book.coverUrl || 'https://via.placeholder.com/44x62/1a1a1a/555?text=Capa'}" 
+                                 alt="${book.title}" class="book-cover">
+                        </div>
+                        <div class="book-content">
+                            <h4>${book.title}</h4>
+                            <p>${book.author}</p>
+                            <div class="book-meta">
+                                <span>${book.pages} pág</span>
+                                <span>${this.getStatusText(book.status)}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
                     `;
-                    bookEl.addEventListener('click', () => this.selectBook(book.id));
-                    container.appendChild(bookEl);
+                    
+                    bookElement.addEventListener('click', () => this.selectBook(book.id));
+                    container.appendChild(bookElement);
                 });
             }
             
