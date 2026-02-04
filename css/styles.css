@@ -1026,20 +1026,19 @@
         }
         
         .reading-session.has-delete-btn .reading-session-main {
-            padding-right: 40px;
+            /* padding-right: 40px; */
         }
         
         .btn-delete-session {
             position: absolute;
-            top: 12px;
+            top: 13px;
             right: 12px;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: none;
             background: rgba(239, 68, 68, 0.15);
             color: var(--danger, #ef4444);
             font-size: 1.2rem;
-            line-height: 1;
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
