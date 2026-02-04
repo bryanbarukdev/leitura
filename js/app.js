@@ -271,24 +271,56 @@
                 document.getElementById('reading-form').addEventListener('input', () => { this.detailFormDirty = true; });
                 document.getElementById('reading-form').addEventListener('change', () => { this.detailFormDirty = true; });
                 
-                // Cards minimizáveis
+                // Cards minimizáveis (animação via altura real)
                 const COLLAPSE_KEY = 'readingPanelCollapsed';
+                const DURATION = 200;
                 document.querySelectorAll('.section.collapsible').forEach(section => {
                     const header = section.querySelector('.collapsible-header');
                     const body = section.querySelector('.collapsible-body');
+                    const inner = section.querySelector('.collapsible-body-inner');
                     const key = section.dataset.collapseKey;
-                    if (!header || !body || !key) return;
+                    if (!header || !body || !inner || !key) return;
                     const saved = localStorage.getItem(COLLAPSE_KEY);
                     const state = saved ? JSON.parse(saved) : {};
                     if (state[key] === true) {
                         section.classList.add('collapsed');
                         header.setAttribute('aria-expanded', 'false');
+                        body.style.height = '0';
+                        body.style.overflow = 'hidden';
                     }
                     header.addEventListener('click', () => {
-                        const isCollapsed = section.classList.toggle('collapsed');
-                        header.setAttribute('aria-expanded', !isCollapsed);
-                        state[key] = isCollapsed;
-                        localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
+                        const willCollapse = !section.classList.contains('collapsed');
+                        if (willCollapse) {
+                            const h = inner.scrollHeight;
+                            body.style.height = h + 'px';
+                            body.style.overflow = 'hidden';
+                            body.offsetHeight;
+                            body.style.transition = `height ${DURATION}ms cubic-bezier(0.32, 0.72, 0, 1)`;
+                            body.style.height = '0';
+                            section.classList.add('collapsed');
+                            header.setAttribute('aria-expanded', 'false');
+                            setTimeout(() => {
+                                body.style.transition = '';
+                                state[key] = true;
+                                localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
+                            }, DURATION);
+                        } else {
+                            const h = inner.scrollHeight;
+                            body.style.height = '0';
+                            body.style.overflow = 'hidden';
+                            body.offsetHeight;
+                            body.style.transition = `height ${DURATION}ms cubic-bezier(0.32, 0.72, 0, 1)`;
+                            body.style.height = h + 'px';
+                            section.classList.remove('collapsed');
+                            header.setAttribute('aria-expanded', 'true');
+                            setTimeout(() => {
+                                body.style.height = '';
+                                body.style.overflow = '';
+                                body.style.transition = '';
+                                state[key] = false;
+                                localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
+                            }, DURATION);
+                        }
                     });
                 });
                 

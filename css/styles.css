@@ -467,20 +467,10 @@
         }
         
         .collapsible-body {
-            display: grid;
-            grid-template-rows: 1fr;
-            transition: grid-template-rows 0.2s cubic-bezier(0.32, 0.72, 0, 1);
             overflow: hidden;
-        }
-        
-        .section.collapsible.collapsed .collapsible-body {
-            grid-template-rows: 0fr;
-            min-height: 0;
         }
         
         .collapsible-body-inner {
-            min-height: 0;
-            overflow: hidden;
             padding: 0 var(--space) var(--space);
             padding-top: var(--space);
         }
