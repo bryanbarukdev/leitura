@@ -106,7 +106,6 @@
             font-weight: 600;
             color: var(--text);
             margin-bottom: var(--space-sm);
-            letter-spacing: -0.015em;
         }
         
         h3 {
@@ -1535,6 +1534,7 @@
             font-family: var(--font-display);
             font-size: 1.75rem;
             margin-bottom: 8px;
+            letter-spacing: 2px;
             color: var(--text);
         }
         #auth-overlay p {
