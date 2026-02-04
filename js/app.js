@@ -17,24 +17,41 @@
             return [];
         }
         
+        function logSupabase(op, result) {
+            const msg = '[Supabase ' + op + '] ' + JSON.stringify(result, null, 2);
+            console.log(msg);
+            const el = document.getElementById('supabase-response');
+            if (el) {
+                el.textContent = 'Supabase: ' + op + ' → ' + (result.ok ? 'OK' : 'ERRO') + (result.error ? ' ' + JSON.stringify(result.error) : (result.data ? ' ' + JSON.stringify(result.data).slice(0, 200) : ''));
+                el.style.display = 'block';
+            }
+        }
+        
         async function pushToSupabase(books) {
-            if (!supabaseClient) return { ok: false, error: 'Supabase não configurado' };
+            if (!supabaseClient) {
+                const r = { ok: false, error: 'Supabase não configurado', data: null };
+                logSupabase('push', r);
+                return r;
+            }
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return { ok: false, error: 'Faça login para sincronizar' };
+            if (!user) {
+                const r = { ok: false, error: 'Faça login para sincronizar', data: null };
+                logSupabase('push', r);
+                return r;
+            }
             let dataPayload = Array.isArray(books) ? books : (books?.books || []);
             if (JSON.stringify(dataPayload).length > 500000) {
                 dataPayload = dataPayload.map(b => ({ ...b, pdfUrl: '' }));
             }
             const row = { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() };
-            const { data, error } = await supabaseClient.from('user_reading_data').upsert(row, {
+            const response = await supabaseClient.from('user_reading_data').upsert(row, {
                 onConflict: 'user_id',
                 ignoreDuplicates: false
             }).select();
-            if (error) {
-                console.error('Supabase upsert erro:', error);
-                return { ok: false, error };
-            }
-            return { ok: true };
+            const { data, error } = response;
+            const result = { ok: !error, error: error ? { message: error.message, code: error.code, details: error.details } : null, data };
+            logSupabase('push', result);
+            return result;
         }
         
         async function loadBooksFromStorage() {
@@ -46,20 +63,24 @@
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (user) {
                     try {
-                        const { data, error } = await supabaseClient
+                        const response = await supabaseClient
                             .from('user_reading_data')
                             .select('payload')
                             .eq('user_id', user.id)
                             .maybeSingle();
+                        const { data, error } = response;
+                        logSupabase('load', { ok: !error, error: error ? { message: error.message, code: error.code } : null, rowCount: data ? 1 : 0 });
                         if (!error) {
                             const books = parseDataPayload(data?.payload || []);
                             return { books, fromSupabase: true };
                         }
                     } catch (e) {
+                        logSupabase('load', { ok: false, error: String(e) });
                         console.warn('Falha ao carregar do Supabase:', e);
                     }
                     return { books: [], fromSupabase: true };
                 }
+                logSupabase('load', { ok: true, error: null, msg: 'Sem usuário logado' });
                 return { books: [], fromSupabase: true };
             }
             try {
