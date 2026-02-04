@@ -442,15 +442,27 @@
         }
         
         .footer-brand {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9375rem;
-            color: var(--text-muted);
+            text-decoration: none;
         }
         
-        .footer-brand .logo-icon {
-            font-size: 1.25rem;
+        .footer-logo {
+            height: 36px;
+            width: auto;
+            display: block;
+            animation: logo-bounce 2s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+        
+        .footer-brand:hover .footer-logo {
+            transform: scale(1.08);
+            animation-play-state: paused;
+        }
+        
+        @keyframes logo-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
         }
         
         .footer-links {
