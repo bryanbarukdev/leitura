@@ -1085,6 +1085,15 @@
             font-weight: 500;
         }
         
+        .sync-source { margin-left: 6px; }
+        .sync-status {
+            margin-left: 8px;
+            color: var(--success);
+            font-size: 0.75rem;
+        }
+        .sync-status.syncing { color: var(--text-muted); }
+        .sync-status.error { color: var(--danger); }
+        
         .hidden {
             display: none !important;
         }
@@ -1709,7 +1718,7 @@
             <div class="section mobile-backup-section mobile-only" id="mobile-more-content">
                 <h2>Mais</h2>
                 <div class="footer-backup">
-                    <span>Dados: <strong>dados-leitura.json</strong>. Exporte e coloque na mesma pasta.</span>
+                    <span>Dados: <strong>dados-leitura.json</strong> ou <strong>Supabase</strong> (sincronização em nuvem).</span>
                     <div class="footer-buttons">
                         <button type="button" id="export-json-mobile" class="btn-secondary">Exportar dados-leitura.json</button>
                         <button type="button" id="export-backup-mobile" class="btn-secondary">Backup (legado)</button>
@@ -1865,7 +1874,11 @@
                 <button type="button" id="auth-logout" class="btn-secondary" style="display: none;">Sair da conta</button>
             </div>
         </div>
-        <p class="footer-note">Painel de Leitura • Fonte: dados-leitura.json (mesmo diretório)</p>
+        <p class="footer-note">
+            Painel de Leitura
+            <span id="sync-source" class="sync-source"></span>
+            <span id="sync-status" class="sync-status" aria-live="polite"></span>
+        </p>
     </footer>
     
     <nav class="bottom-nav mobile-only" aria-label="Navegação principal">
@@ -1888,8 +1901,8 @@
     <script>
         // --- CONFIGURAÇÃO SUPABASE (sync celular/PC) ---
         // Preencha para ativar: acessar de qualquer lugar e dados iguais no celular e no PC.
-        const SUPABASE_URL = '';
-        const SUPABASE_ANON_KEY = '';
+        const SUPABASE_URL = 'https://dtcloojdcochyfjxlisk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y2xvb2pkY29jaHlmanhsaXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjc0NTUsImV4cCI6MjA4NTgwMzQ1NX0.UXShBSGJcrD7vucFfslYMd1kgiG_ljXqwhxlBzkzCAg';
         
         // Arquivo JSON no mesmo diretório do HTML — fonte principal dos dados
         const DADOS_JSON_FILE = 'dados-leitura.json';
@@ -1918,20 +1931,7 @@
         }
         
         async function loadBooksFromStorage() {
-            // 1) Tentar carregar do JSON (mesmo diretório do HTML — use servidor local ou hospedagem)
-            try {
-                const url = DADOS_JSON_FILE + '?t=' + Date.now();
-                const res = await fetch(url, { cache: 'no-store' });
-                if (res.ok) {
-                    const data = await res.json();
-                    const books = parseDataPayload(data);
-                    syncLocalStorageFromBooks(books);
-                    return books;
-                }
-            } catch (e) {
-                console.warn('Arquivo JSON não encontrado ou inacessível. Use um servidor local (ex.: Live Server) ou fallback.', e);
-            }
-            // 2) Supabase (se configurado e logado)
+            // 1) Supabase (prioridade quando logado — nuvem = fonte da verdade)
             if (supabaseClient) {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (user) {
@@ -1941,17 +1941,34 @@
                             .select('payload')
                             .eq('user_id', user.id)
                             .maybeSingle();
-                        if (!error && data && data.payload) {
-                            const books = parseDataPayload(data.payload);
-                            syncLocalStorageFromBooks(books);
-                            return books;
+                        if (!error && data) {
+                            const books = parseDataPayload(data.payload || []);
+                            if (books.length > 0) {
+                                syncLocalStorageFromBooks(books);
+                                return books;
+                            }
                         }
                     } catch (e) {
                         console.warn('Falha ao carregar do Supabase:', e);
                     }
                 }
             }
-            // 3) Fallback: localStorage (só quando o JSON não pôde ser carregado)
+            // 2) Arquivo JSON (mesmo diretório do HTML — servidor local ou hospedagem)
+            try {
+                const url = DADOS_JSON_FILE + '?t=' + Date.now();
+                const res = await fetch(url, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const books = parseDataPayload(data);
+                    if (books.length > 0) {
+                        syncLocalStorageFromBooks(books);
+                        return books;
+                    }
+                }
+            } catch (e) {
+                console.warn('Arquivo JSON não encontrado ou inacessível.', e);
+            }
+            // 3) localStorage (fallback offline)
             try {
                 const data = localStorage.getItem(STORAGE_KEY);
                 if (data) return parseDataPayload(JSON.parse(data));
@@ -2188,6 +2205,7 @@
                 if (supabaseClient && logoutBtn) {
                     logoutBtn.style.display = '';
                     logoutBtn.addEventListener('click', async () => {
+                        unsubscribeRealtime();
                         await supabaseClient.auth.signOut();
                         location.reload();
                     });
@@ -2634,6 +2652,8 @@
                 if (supabaseClient) {
                     supabaseClient.auth.getUser().then(({ data: { user } }) => {
                         if (user) {
+                            const statusEl = document.getElementById('sync-status');
+                            if (statusEl) { statusEl.textContent = 'Enviando…'; statusEl.className = 'sync-status syncing'; }
                             let dataPayload = payload.books;
                             if (JSON.stringify(dataPayload).length > 500000) {
                                 dataPayload = this.books.map(b => ({ ...b, pdfUrl: '' }));
@@ -2642,7 +2662,12 @@
                                 { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() },
                                 { onConflict: 'user_id' }
                             ).then(({ error }) => {
-                                if (error) console.warn('Sync Supabase:', error);
+                                if (error) {
+                                    console.warn('Sync Supabase:', error);
+                                    updateSyncUI('', 'Erro ao sincronizar', 'error');
+                                } else {
+                                    updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
+                                }
                             });
                         }
                     });
@@ -2980,12 +3005,63 @@
             }
         }
         
-        // Inicializar o aplicativo quando a página carregar
+        let realtimeChannel = null;
+        
+        function updateSyncUI(source, status, statusClass) {
+            const sourceEl = document.getElementById('sync-source');
+            const statusEl = document.getElementById('sync-status');
+            if (sourceEl) sourceEl.textContent = source;
+            if (statusEl) {
+                statusEl.textContent = status;
+                statusEl.className = 'sync-status' + (statusClass ? ' ' + statusClass : '');
+            }
+        }
+        
+        function setupRealtimeSubscription(userId, tracker) {
+            if (!supabaseClient || realtimeChannel) return;
+            const handlePayload = (payload) => {
+                const books = parseDataPayload(payload?.new?.payload || []);
+                if (books.length >= 0 && tracker) {
+                    tracker.books = books.map(normalizeBook);
+                    syncLocalStorageFromBooks(books);
+                    tracker.selectedBookId = null;
+                    tracker.renderBooks();
+                    tracker.updateUI();
+                    updateSyncUI('• Sincronizado com a nuvem', 'Atualizado', '');
+                }
+            };
+            realtimeChannel = supabaseClient
+                .channel('user_reading_data_changes')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'user_reading_data',
+                    filter: 'user_id=eq.' + userId
+                }, handlePayload)
+                .subscribe();
+        }
+        
+        function unsubscribeRealtime() {
+            if (realtimeChannel && supabaseClient) {
+                supabaseClient.removeChannel(realtimeChannel);
+                realtimeChannel = null;
+            }
+        }
+        
         async function startApp() {
             const overlay = document.getElementById('auth-overlay');
             if (overlay) overlay.classList.remove('visible');
             const books = await loadBooksFromStorage();
             window.readingTracker = new ReadingTracker(books);
+            const { data: { user } } = supabaseClient ? await supabaseClient.auth.getUser() : { data: { user: null } };
+            if (supabaseClient && user) {
+                updateSyncUI('• Sincronizado com a nuvem', '', '');
+                setupRealtimeSubscription(user.id, window.readingTracker);
+                const backupSpan = document.querySelector('.footer-backup span');
+                if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
+            } else {
+                updateSyncUI('', 'Fonte: dados-leitura.json', '');
+            }
         }
         
         function setupAuthOverlay() {
