@@ -32,6 +32,62 @@
             scroll-behavior: smooth;
         }
         
+        /* ----- Fundo: grid + partículas ----- */
+        #bg-effects {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.045) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, black 0%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, black 0%, transparent 75%);
+        }
+        
+        .bg-particles {
+            position: absolute;
+            inset: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            animation: particle-float 20s ease-in-out infinite;
+        }
+        
+        @keyframes particle-float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.25;
+            }
+            20% {
+                transform: translate(25px, -35px) scale(1.08);
+                opacity: 0.45;
+            }
+            40% {
+                transform: translate(-15px, 25px) scale(0.95);
+                opacity: 0.35;
+            }
+            60% {
+                transform: translate(35px, 15px) scale(1.02);
+                opacity: 0.4;
+            }
+            80% {
+                transform: translate(-25px, -20px) scale(1.05);
+                opacity: 0.38;
+            }
+        }
+        
         body {
             font-family: var(--font);
             background: var(--bg);
@@ -809,6 +865,7 @@
             /* border: 1px solid rgba(59, 130, 246, 0.3); */
             border-radius: var(--radius-sm);
             cursor: pointer;
+            gap: 20px;
             font-size: 0.9375rem;
             font-weight: 500;
             font-family: var(--font);

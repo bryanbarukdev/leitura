@@ -1307,6 +1307,21 @@
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
+            // Partículas flutuantes no fundo
+            const particlesEl = document.getElementById('bg-particles');
+            if (particlesEl) {
+                const count = 24;
+                for (let i = 0; i < count; i++) {
+                    const p = document.createElement('span');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.top = Math.random() * 100 + '%';
+                    p.style.width = p.style.height = (4 + Math.random() * 8) + 'px';
+                    p.style.animationDelay = (Math.random() * 8) + 's';
+                    p.style.animationDuration = (12 + Math.random() * 10) + 's';
+                    particlesEl.appendChild(p);
+                }
+            }
             if (SUPABASE_CONFIGURED) {
                 if (!supabaseClient) {
                     const msg = document.getElementById('auth-overlay') || document.body;
