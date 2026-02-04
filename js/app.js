@@ -1307,6 +1307,23 @@
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
+            // Partículas nos botões (explosão no clique)
+            document.querySelectorAll('.btn-explode-wrap').forEach(wrap => {
+                for (let i = 0; i < 15; i++) {
+                    const p = document.createElement('span');
+                    p.className = 'particle';
+                    wrap.insertBefore(p, wrap.firstChild);
+                }
+                const btn = wrap.querySelector('button');
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        if (!wrap.classList.contains('active')) {
+                            wrap.classList.add('active');
+                            setTimeout(() => wrap.classList.remove('active'), 900);
+                        }
+                    });
+                }
+            });
             // Partículas flutuantes no fundo
             const particlesEl = document.getElementById('bg-particles');
             if (particlesEl) {
