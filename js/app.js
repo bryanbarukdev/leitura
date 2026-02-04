@@ -381,6 +381,16 @@
                     });
                 });
                 
+                // Editar anotações do livro
+                const btnEditNotes = document.getElementById('btn-edit-notes');
+                const btnSaveNotes = document.getElementById('btn-save-notes');
+                const btnCancelNotes = document.getElementById('btn-cancel-notes');
+                if (btnEditNotes && btnSaveNotes && btnCancelNotes) {
+                    btnEditNotes.addEventListener('click', () => this.startEditNotes());
+                    btnSaveNotes.addEventListener('click', () => this.saveBookNotes());
+                    btnCancelNotes.addEventListener('click', () => this.cancelEditNotes());
+                }
+                
                 // Sincronizar agora (Supabase)
                 const syncBtn = document.getElementById('btn-sync-now');
                 if (supabaseClient && syncBtn) {
@@ -991,6 +1001,8 @@
                 document.getElementById('detail-progress-percent').textContent = `${progress.toFixed(0)}%`;
                 document.getElementById('detail-progress-text').textContent = `${pagesRead}/${book.pages} páginas`;
                 document.getElementById('detail-notes').textContent = book.notes || 'Nenhuma anotação disponível.';
+                document.getElementById('notes-view-mode').style.display = '';
+                document.getElementById('notes-edit-mode').style.display = 'none';
                 
                 // Atualizar estatísticas
                 document.getElementById('stat-sessions').textContent = sessionsCount;
@@ -1019,6 +1031,43 @@
                 
                 // Estimativa de conclusão
                 this.updateEstimate(book);
+            }
+            
+            startEditNotes() {
+                if (!this.selectedBookId) return;
+                const book = this.books.find(b => b.id === this.selectedBookId);
+                if (!book) return;
+                const notesInput = document.getElementById('detail-notes-input');
+                const viewMode = document.getElementById('notes-view-mode');
+                const editMode = document.getElementById('notes-edit-mode');
+                if (!notesInput || !viewMode || !editMode) return;
+                notesInput.value = book.notes || '';
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                notesInput.focus();
+            }
+            
+            cancelEditNotes() {
+                const viewMode = document.getElementById('notes-view-mode');
+                const editMode = document.getElementById('notes-edit-mode');
+                if (viewMode && editMode) {
+                    editMode.style.display = 'none';
+                    viewMode.style.display = '';
+                }
+            }
+            
+            saveBookNotes() {
+                if (!this.selectedBookId) return;
+                const book = this.books.find(b => b.id === this.selectedBookId);
+                if (!book) return;
+                const notesInput = document.getElementById('detail-notes-input');
+                if (!notesInput) return;
+                const notes = notesInput.value.trim();
+                book.notes = notes || '';
+                this.saveToLocalStorage();
+                document.getElementById('detail-notes').textContent = book.notes || 'Nenhuma anotação disponível.';
+                this.cancelEditNotes();
+                Swal.fire({ title: 'Anotações salvas', icon: 'success', timer: 1500, showConfirmButton: false });
             }
             
             getReadingEstimate(book) {

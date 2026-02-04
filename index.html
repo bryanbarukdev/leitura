@@ -263,7 +263,17 @@
                     </div>
                     
                     <div class="tab-content active" id="tab-notes">
-                        <p id="detail-notes">Nenhuma anotação disponível.</p>
+                        <div id="notes-view-mode">
+                            <p id="detail-notes">Nenhuma anotação disponível.</p>
+                            <button type="button" class="btn-edit-notes" id="btn-edit-notes">Editar anotações</button>
+                        </div>
+                        <div id="notes-edit-mode" style="display:none">
+                            <textarea id="detail-notes-input" rows="4" placeholder="Adicione anotações sobre o livro..."></textarea>
+                            <div class="notes-edit-actions">
+                                <button type="button" class="btn-save-notes" id="btn-save-notes">Salvar</button>
+                                <button type="button" class="btn-cancel-notes" id="btn-cancel-notes">Cancelar</button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="tab-content" id="tab-reading">
