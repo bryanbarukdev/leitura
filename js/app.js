@@ -366,7 +366,7 @@
                         const tab = btn.getAttribute('data-mobile-tab');
                         document.querySelectorAll('.bottom-nav [data-mobile-tab]').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
-                        const el = tab === 'more' ? document.getElementById('mobile-more-content') : document.getElementById('mobile-panel-' + tab);
+                        const el = tab === 'more' ? document.getElementById('mobile-more-content') : (tab === 'list' ? document.getElementById('meus-livros') : document.getElementById('mobile-panel-' + tab));
                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     });
                 });
