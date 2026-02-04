@@ -896,7 +896,7 @@
             border: 1px solid var(--border);
             font-size: 0.9375rem;
             background-color: transparent;
-            border-radius: 100px;
+            border-radius: 9px;
             font-weight: 600;
             font-family: var(--font);
             color: var(--text-muted);
@@ -936,6 +936,23 @@
             width: 150px;
             height: 150px;
             opacity: 1;
+        }
+        
+        .btn-submit-simple {
+            padding: 12px 22px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-submit-simple:hover {
+            background: var(--accent-hover);
         }
         
         .btn-secondary {
