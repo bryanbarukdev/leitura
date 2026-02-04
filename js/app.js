@@ -1,4 +1,7 @@
-// Config vem de js/config.js (SUPABASE_URL, SUPABASE_ANON_KEY, DADOS_JSON_FILE)
+// Config vem de js/config.js (window.SUPABASE_URL, window.SUPABASE_ANON_KEY, window.DADOS_JSON_FILE)
+        const SUPABASE_URL = window.SUPABASE_URL || '';
+        const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
+        const DADOS_JSON_FILE = window.DADOS_JSON_FILE || 'dados-leitura.json';
         const STORAGE_KEY = 'readingTrackerBooks';
         const BACKUP_KEY = 'readingTrackerBooks_backup';
         
