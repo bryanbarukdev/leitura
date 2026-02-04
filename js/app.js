@@ -1217,7 +1217,7 @@
             if (supabaseClient && user) {
                 updateSyncUI('• Sincronizado com a nuvem', '', '');
                 setupRealtimeSubscription(user.id, window.readingTracker);
-                const backupSpan = document.querySelector('.footer-backup span');
+                const backupSpan = document.getElementById('footer-backup-msg');
                 if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
             } else {
                 updateSyncUI('', 'Fonte: dados-leitura.json ou navegador', '');
