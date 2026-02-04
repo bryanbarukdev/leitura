@@ -1208,7 +1208,7 @@
                     }
                     
                     // Só a última sessão cadastrada (última no array) pode ser excluída
-                    const isLastAdded = lastAddedSession && session.id === lastAddedSession.id;
+                    const isLastAdded = lastAddedSession && session === lastAddedSession;
                     const deleteBtnHtml = isLastAdded
                         ? `<button type="button" class="btn-delete-session" data-session-id="${session.id}" aria-label="Excluir sessão" title="Excluir sessão">×</button>`
                         : '';
