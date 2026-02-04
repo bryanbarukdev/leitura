@@ -32,13 +32,23 @@
             scroll-behavior: smooth;
         }
         
-        /* ----- Fundo: grid + partículas ----- */
+        /* ----- Fundo: grid + partículas (apenas hero e features) ----- */
+        .hero-features-wrap {
+            position: relative;
+        }
+        
         #bg-effects {
-            position: fixed;
+            position: absolute;
             inset: 0;
-            z-index: -1;
+            z-index: 0;
             pointer-events: none;
             overflow: hidden;
+        }
+        
+        .hero-features-wrap .hero,
+        .hero-features-wrap .features-section {
+            position: relative;
+            z-index: 1;
         }
         
         .bg-grid {
@@ -55,6 +65,16 @@
         .bg-particles {
             position: absolute;
             inset: 0;
+        }
+        
+        .bg-fade {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 55%;
+            background: linear-gradient(to bottom, transparent 0%, var(--bg) 90%);
+            pointer-events: none;
         }
         
         .particle {

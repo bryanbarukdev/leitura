@@ -15,10 +15,6 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div id="bg-effects" aria-hidden="true">
-        <div class="bg-grid"></div>
-        <div class="bg-particles" id="bg-particles"></div>
-    </div>
     <div id="auth-overlay" aria-hidden="true">
         <h2>Painel de Leitura</h2>
         <p>Entre para sincronizar seus dados no celular e no PC</p>
@@ -34,7 +30,13 @@
         </form>
     </div>
     
-    <section class="hero">
+    <div class="hero-features-wrap">
+        <div id="bg-effects" aria-hidden="true">
+            <div class="bg-grid"></div>
+            <div class="bg-particles" id="bg-particles"></div>
+            <div class="bg-fade"></div>
+        </div>
+        <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-content">
             <span class="hero-badge">Seu rastreador de leitura</span>
@@ -77,6 +79,7 @@
             </div>
         </div>
     </section>
+    </div>
     
     <section class="dashboard-section" id="dashboard-section">
         <div class="section-badge">Sua biblioteca</div>
