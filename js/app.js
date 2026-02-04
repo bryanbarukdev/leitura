@@ -1188,8 +1188,16 @@
                     return;
                 }
                 
-                // Ordenar por data (mais recente primeiro)
-                const sortedSessions = [...book.readingSessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+                // Ordenar por data: mais recente no topo (desempate: último cadastrado primeiro)
+                const sortedSessions = [...book.readingSessions]
+                    .map((s, i) => ({ s, i, t: new Date(s.date).getTime() }))
+                    .sort((a, b) => {
+                        const ta = isNaN(a.t) ? 0 : a.t;
+                        const tb = isNaN(b.t) ? 0 : b.t;
+                        if (tb !== ta) return tb - ta;
+                        return b.i - a.i;
+                    })
+                    .map(x => x.s);
                 const lastAddedSession = book.readingSessions[book.readingSessions.length - 1];
                 
                 container.innerHTML = '';
@@ -1428,6 +1436,21 @@
                     p.style.animationDelay = (Math.random() * 8) + 's';
                     p.style.animationDuration = (12 + Math.random() * 10) + 's';
                     particlesEl.appendChild(p);
+                }
+            }
+            // Partículas na tela de login
+            const authParticlesEl = document.getElementById('auth-bg-particles');
+            if (authParticlesEl) {
+                const count = 18;
+                for (let i = 0; i < count; i++) {
+                    const p = document.createElement('span');
+                    p.className = 'particle auth-particle';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.top = Math.random() * 100 + '%';
+                    p.style.width = p.style.height = (4 + Math.random() * 8) + 'px';
+                    p.style.animationDelay = (Math.random() * 8) + 's';
+                    p.style.animationDuration = (12 + Math.random() * 10) + 's';
+                    authParticlesEl.appendChild(p);
                 }
             }
             if (SUPABASE_CONFIGURED) {

@@ -16,18 +16,29 @@
 </head>
 <body>
     <div id="auth-overlay" aria-hidden="true">
-        <h2>Painel de Leitura</h2>
-        <p>Entre para sincronizar seus dados no celular e no PC</p>
-        <form id="auth-form">
-            <div class="auth-tabs">
-                <button type="button" class="active" data-auth-tab="login">Entrar</button>
-                <button type="button" data-auth-tab="signup">Criar conta</button>
+        <div class="auth-bg-effects" aria-hidden="true">
+            <div class="auth-bg-grid"></div>
+            <div class="auth-bg-particles" id="auth-bg-particles"></div>
+            <div class="auth-bg-fade"></div>
+        </div>
+        <div class="auth-content-wrap">
+            <div class="auth-bg-glow"></div>
+            <div class="auth-content">
+                <span class="auth-badge">Seu rastreador de leitura</span>
+                <h2 class="auth-title">Entre para sincronizar</h2>
+                <p class="auth-subtitle">Seus dados no celular e no PC, sempre atualizados</p>
+                <form id="auth-form">
+                    <div class="auth-tabs">
+                        <button type="button" class="active" data-auth-tab="login">Entrar</button>
+                        <button type="button" data-auth-tab="signup">Criar conta</button>
+                    </div>
+                    <input type="email" id="auth-email" placeholder="E-mail" required autocomplete="email">
+                    <input type="password" id="auth-password" placeholder="Senha" required autocomplete="current-password">
+                    <p id="auth-error" class="hidden"></p>
+                    <button type="submit" class="btn-primary auth-submit-btn" id="auth-submit">Entrar</button>
+                </form>
             </div>
-            <input type="email" id="auth-email" placeholder="E-mail" required autocomplete="email">
-            <input type="password" id="auth-password" placeholder="Senha" required autocomplete="current-password">
-            <p id="auth-error" class="hidden"></p>
-            <button type="submit" class="btn-primary" id="auth-submit">Entrar</button>
-        </form>
+        </div>
     </div>
     
     <div class="hero-features-wrap">
