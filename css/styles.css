@@ -939,20 +939,26 @@
         }
         
         .btn-submit-simple {
-            padding: 12px 22px;
+            padding: 12px 24px;
             background: var(--accent);
             color: #fff;
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             font-size: 0.9375rem;
             font-weight: 600;
             font-family: var(--font);
+            letter-spacing: 0.02em;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.15s;
         }
         
         .btn-submit-simple:hover {
             background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+        
+        .btn-submit-simple:active {
+            transform: translateY(0);
         }
         
         .btn-secondary {
