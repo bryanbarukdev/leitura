@@ -686,6 +686,11 @@
                     Swal.fire({ title: 'Selecione um livro', text: 'Escolha um livro na lista para registrar a sessão.', icon: 'info' });
                     return;
                 }
+                const book = this.books.find(b => b.id === this.selectedBookId);
+                if (book && book.status === 'concluido') {
+                    Swal.fire({ title: 'Livro concluído', text: 'Este livro já foi finalizado. Não é possível adicionar mais sessões.', icon: 'info' });
+                    return;
+                }
                 
                 const date = document.getElementById('session-date').value;
                 const time = parseInt(document.getElementById('session-time').value);
@@ -695,7 +700,6 @@
                 const notes = document.getElementById('session-notes').value.trim();
                 
                 // Validações
-                const book = this.books.find(b => b.id === this.selectedBookId);
                 if (endPage > book.pages) {
                     Swal.fire({ title: 'Página inválida', text: `A página final não pode ser maior que ${book.pages} (total do livro).`, icon: 'warning' });
                     return;
@@ -746,16 +750,42 @@
                 Swal.fire({ title: 'Sessão registrada', text: 'Sessão de leitura salva com sucesso!', icon: 'success' });
             }
             
+            deleteSession(sessionId) {
+                if (!this.selectedBookId) return;
+                const book = this.books.find(b => b.id === this.selectedBookId);
+                if (!book) return;
+                Swal.fire({
+                    title: 'Excluir sessão?',
+                    text: 'Esta sessão de leitura será removida.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Excluir',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+                    const bookIndex = this.books.findIndex(b => b.id === this.selectedBookId);
+                    this.books[bookIndex].readingSessions = this.books[bookIndex].readingSessions.filter(s => s.id !== sessionId);
+                    const pagesRead = this.calculatePagesRead(this.books[bookIndex]);
+                    if (this.books[bookIndex].status === 'concluido' && pagesRead < this.books[bookIndex].pages) {
+                        this.books[bookIndex].status = 'lendo';
+                    }
+                    this.saveToLocalStorage();
+                    this.updateStatsOverview();
+                    this.displayBookDetails();
+                    Swal.fire({ title: 'Sessão excluída', text: 'Removida com sucesso.', icon: 'success' });
+                });
+            }
+            
             deleteBook(bookId) {
                 this.books = this.books.filter(book => book.id !== bookId);
-                
                 if (this.selectedBookId === bookId) {
                     this.selectedBookId = null;
                 }
-                
                 this.saveToLocalStorage();
                 this.renderBooks();
                 this.updateUI();
+                const meusLivros = document.getElementById('meus-livros');
+                if (meusLivros && window.innerWidth <= 768) meusLivros.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 Swal.fire({ title: 'Livro excluído', text: 'Removido com sucesso.', icon: 'success' });
             }
             
@@ -973,6 +1003,17 @@
                 document.getElementById('end-page').min = pagesRead + 1;
                 document.getElementById('end-page').max = book.pages;
                 
+                // Esconder aba "Nova Leitura" se livro concluído
+                const tabReading = document.querySelector('.tab[data-tab="reading"]');
+                if (tabReading) {
+                    const hideReading = book.status === 'concluido';
+                    tabReading.style.display = hideReading ? 'none' : '';
+                    if (hideReading && tabReading.classList.contains('active')) {
+                        const tabSessions = document.querySelector('.tab[data-tab="sessions"]');
+                        if (tabSessions) tabSessions.click();
+                    }
+                }
+                
                 // Renderizar sessões de leitura
                 this.renderReadingSessions();
                 
@@ -1107,11 +1148,8 @@
                     const sessionElement = document.createElement('div');
                     sessionElement.className = 'reading-session';
                     
-                    // Formatar data
                     const dateObj = new Date(session.date);
                     const formattedDate = dateObj.toLocaleDateString('pt-BR');
-                    
-                    // SVG estrela (path)
                     const starPath = 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
                     let starsHtml = '';
                     for (let s = 1; s <= 5; s++) {
@@ -1120,15 +1158,19 @@
                     }
                     
                     sessionElement.innerHTML = `
-                        <div class="reading-date">${formattedDate}</div>
-                        <h4>Páginas ${session.startPage} a ${session.endPage}</h4>
-                        <p>${session.notes || 'Sem observações'}</p>
-                        <div class="reading-info">
-                            <span>${session.time} minutos</span>
-                            <span class="star-rating star-rating-display">${starsHtml}</span>
+                        <div class="reading-session-main">
+                            <div class="reading-date">${formattedDate}</div>
+                            <h4>Páginas ${session.startPage} a ${session.endPage}</h4>
+                            <p>${session.notes || 'Sem observações'}</p>
+                            <div class="reading-info">
+                                <span>${session.time} minutos</span>
+                                <span class="star-rating star-rating-display">${starsHtml}</span>
+                            </div>
                         </div>
+                        <button type="button" class="btn-delete-session" data-session-id="${session.id}" aria-label="Excluir sessão" title="Excluir sessão">×</button>
                     `;
                     
+                    sessionElement.querySelector('.btn-delete-session').addEventListener('click', () => this.deleteSession(session.id));
                     container.appendChild(sessionElement);
                 });
             }
