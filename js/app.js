@@ -6,8 +6,8 @@
         const BACKUP_KEY = 'readingTrackerBooks_backup';
         
         let supabaseClient = null;
-        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-            supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) || null;
+        if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
         
         function parseDataPayload(raw) {
@@ -52,7 +52,7 @@
                     return { books: [], fromSupabase: true };
                 }
             }
-            // Sem Supabase: JSON ou localStorage (fallback)
+            // Fallback: JSON ou localStorage (quando Supabase não está ativo)
             try {
                 const url = DADOS_JSON_FILE + '?t=' + Date.now();
                 const res = await fetch(url, { cache: 'no-store' });
@@ -1158,7 +1158,10 @@
                 const backupSpan = document.querySelector('.footer-backup span');
                 if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
             } else {
-                updateSyncUI('', 'Fonte: dados-leitura.json', '');
+                updateSyncUI('', 'Modo offline: dados do JSON ou navegador (Supabase não conectado)', '');
+                if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+                    console.warn('Supabase configurado mas não conectou. Verifique: config.js e Supabase JS carregaram? Abra por servidor local (não file://)');
+                }
             }
         }
         
