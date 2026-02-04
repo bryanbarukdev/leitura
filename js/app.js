@@ -1144,7 +1144,7 @@
                 
                 container.innerHTML = '';
                 
-                sortedSessions.forEach(session => {
+                sortedSessions.forEach((session, index) => {
                     const sessionElement = document.createElement('div');
                     sessionElement.className = 'reading-session';
                     
@@ -1157,6 +1157,12 @@
                         starsHtml += `<span class="star-svg ${filled}"><svg viewBox="0 0 24 24"><path d="${starPath}"/></svg></span>`;
                     }
                     
+                    // Só a última sessão (mais recente) pode ser excluída
+                    const isLastSession = index === 0;
+                    const deleteBtnHtml = isLastSession
+                        ? `<button type="button" class="btn-delete-session" data-session-id="${session.id}" aria-label="Excluir sessão" title="Excluir sessão">×</button>`
+                        : '';
+                    
                     sessionElement.innerHTML = `
                         <div class="reading-session-main">
                             <div class="reading-date">${formattedDate}</div>
@@ -1167,10 +1173,12 @@
                                 <span class="star-rating star-rating-display">${starsHtml}</span>
                             </div>
                         </div>
-                        <button type="button" class="btn-delete-session" data-session-id="${session.id}" aria-label="Excluir sessão" title="Excluir sessão">×</button>
+                        ${deleteBtnHtml}
                     `;
                     
-                    sessionElement.querySelector('.btn-delete-session').addEventListener('click', () => this.deleteSession(session.id));
+                    if (isLastSession) {
+                        sessionElement.querySelector('.btn-delete-session').addEventListener('click', () => this.deleteSession(session.id));
+                    }
                     container.appendChild(sessionElement);
                 });
             }
