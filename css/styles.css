@@ -454,7 +454,7 @@
             width: 16px;
             height: 16px;
             opacity: 0.6;
-            transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+            transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") center/contain no-repeat;
         }
         
@@ -463,20 +463,25 @@
         }
         
         .collapsible-body {
-            overflow: hidden;
-            max-height: 2000px;
-            transition: max-height 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+            display: grid;
+            grid-template-rows: 1fr;
+            transition: grid-template-rows 0.2s cubic-bezier(0.32, 0.72, 0, 1);
         }
         
         .section.collapsible.collapsed .collapsible-body {
-            max-height: 0;
+            grid-template-rows: 0fr;
         }
         
-        .section.collapsible .collapsible-body {
+        .collapsible-body-inner {
+            min-height: 0;
+            overflow: hidden;
+        }
+        
+        .section.collapsible .collapsible-body-inner {
             padding: 0 var(--space) var(--space);
         }
         
-        .section.collapsible .collapsible-body > *:first-child {
+        .section.collapsible .collapsible-body-inner > *:first-child {
             padding-top: var(--space);
         }
         
