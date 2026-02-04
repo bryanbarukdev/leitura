@@ -263,6 +263,7 @@
             background: var(--accent);
             color: #fff;
             padding: 0.08em 0.22em 0.12em;
+            padding-bottom: 0px;
             margin: 0 -0.05em;
             line-height: 1.1;
         }
