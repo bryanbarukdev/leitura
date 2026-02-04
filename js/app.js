@@ -328,17 +328,6 @@
                     });
                 });
                 
-                // Exportar dados no formato dados-leitura.json (mesmo diretório)
-                document.getElementById('export-json').addEventListener('click', () => this.exportToJsonFile());
-                document.getElementById('export-backup').addEventListener('click', () => this.exportBackup());
-                
-                // Restaurar backup (arquivo)
-                document.getElementById('import-backup-file').addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (file) this.importBackupFromFile(file);
-                    e.target.value = '';
-                });
-                
                 // Sincronizar agora (Supabase)
                 const syncBtn = document.getElementById('btn-sync-now');
                 if (supabaseClient && syncBtn) {
@@ -459,31 +448,6 @@
                     document.addEventListener('mouseup', () => { if (rightCol.classList.contains('mobile-dragging')) onEnd(); });
                 }
                 
-                // Mobile: Sincronizar agora (Supabase)
-                const syncBtnMobile = document.getElementById('btn-sync-now-mobile');
-                if (supabaseClient && syncBtnMobile) {
-                    syncBtnMobile.style.display = '';
-                    syncBtnMobile.addEventListener('click', async () => {
-                        syncBtnMobile.disabled = true;
-                        const result = await pushToSupabase(this.books);
-                        syncBtnMobile.disabled = false;
-                        if (result.ok) {
-                            updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
-                            Swal.fire({ title: 'Sincronizado', text: 'Dados enviados para a nuvem.', icon: 'success' });
-                        } else {
-                            const msg = result.error?.message || (typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
-                            Swal.fire({ title: 'Erro ao sincronizar', html: '<pre style="font-size:11px;overflow:auto;">' + msg + '</pre>', icon: 'error' });
-                        }
-                    });
-                }
-                // Mobile: exportar JSON e backup (seção Mais)
-                document.getElementById('export-json-mobile')?.addEventListener('click', () => this.exportToJsonFile());
-                document.getElementById('export-backup-mobile')?.addEventListener('click', () => this.exportBackup());
-                document.getElementById('import-backup-file-mobile')?.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (file) this.importBackupFromFile(file);
-                    e.target.value = '';
-                });
             }
             
             exportBackup() {
@@ -1217,8 +1181,6 @@
             if (supabaseClient && user) {
                 updateSyncUI('• Sincronizado com a nuvem', '', '');
                 setupRealtimeSubscription(user.id, window.readingTracker);
-                const backupSpan = document.getElementById('footer-backup-msg');
-                if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
             } else {
                 updateSyncUI('', 'Fonte: dados-leitura.json ou navegador', '');
             }

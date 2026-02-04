@@ -114,21 +114,6 @@
                 </div>
             </div>
             
-            <div class="section mobile-backup-section mobile-only" id="mobile-more-content">
-                <h2>Mais</h2>
-                <div class="footer-backup">
-                    <span>Dados: <strong>dados-leitura.json</strong> ou <strong>Supabase</strong> (sincronização em nuvem).</span>
-                    <div class="footer-buttons">
-                        <button type="button" id="btn-sync-now-mobile" class="btn-secondary" style="display: none;">Sincronizar agora</button>
-                        <button type="button" id="export-json-mobile" class="btn-secondary">Exportar dados-leitura.json</button>
-                        <button type="button" id="export-backup-mobile" class="btn-secondary">Backup (legado)</button>
-                        <label class="btn-secondary import-label">
-                            Carregar JSON
-                            <input type="file" id="import-backup-file-mobile" accept=".json" hidden>
-                        </label>
-                    </div>
-                </div>
-            </div>
         </div>
         
         <div class="right-column" id="right-column">
@@ -267,7 +252,6 @@
             <span id="sync-source" class="sync-source"></span>
             <span id="sync-status" class="sync-status" aria-live="polite"></span>
         </p>
-        <p id="supabase-response" class="supabase-response" style="display:none;margin-top:8px;font-size:11px;color:#888;word-break:break-all;"></p>
     </footer>
     
     <nav class="bottom-nav mobile-only" aria-label="Navegação principal">
@@ -278,10 +262,6 @@
         <button type="button" class="nav-tab" data-mobile-tab="form" aria-label="Novo Livro">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Novo
-        </button>
-        <button type="button" class="nav-tab" data-mobile-tab="more" aria-label="Mais">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            Mais
         </button>
     </nav>
     
