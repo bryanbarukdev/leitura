@@ -889,113 +889,48 @@
         }
         
         /* ----- Botões ----- */
-        .btn-explode-wrap {
-            position: relative;
-            display: inline-block;
-            overflow: visible;
-        }
-        
-        .btn-explode-wrap .particle {
-            position: absolute;
+        button:not(.btn-secondary):not(.delete-btn):not(.btn-logout):not(.genre-chip):not(.nav-tab):not(.collapsible-header) {
+            padding: 12px 22px;
             background: var(--accent);
-            width: 8px;
-            height: 8px;
-            top: 50%;
-            left: 50%;
-            margin: -4px 0 0 -4px;
-            z-index: -1;
-            border-radius: 50%;
-            transform: scale(0);
-            visibility: hidden;
-            pointer-events: none;
-        }
-        
-        .btn-explode-wrap .particle:nth-child(odd) {
-            background: transparent;
-            border: 2px solid var(--accent);
-        }
-        
-        .btn-explode-wrap.active .particle {
-            visibility: visible;
-            animation-duration: 0.8s;
-            animation-timing-function: ease-out;
-            animation-fill-mode: forwards;
-        }
-        
-        .btn-explode-wrap .particle:nth-child(1) { animation-name: particle-burst-1; animation-delay: 0s; }
-        .btn-explode-wrap .particle:nth-child(2) { animation-name: particle-burst-2; animation-delay: 0.02s; }
-        .btn-explode-wrap .particle:nth-child(3) { animation-name: particle-burst-3; animation-delay: 0.04s; }
-        .btn-explode-wrap .particle:nth-child(4) { animation-name: particle-burst-4; animation-delay: 0.01s; }
-        .btn-explode-wrap .particle:nth-child(5) { animation-name: particle-burst-5; animation-delay: 0.03s; }
-        .btn-explode-wrap .particle:nth-child(6) { animation-name: particle-burst-6; animation-delay: 0.05s; }
-        .btn-explode-wrap .particle:nth-child(7) { animation-name: particle-burst-7; animation-delay: 0.015s; }
-        .btn-explode-wrap .particle:nth-child(8) { animation-name: particle-burst-8; animation-delay: 0.035s; }
-        .btn-explode-wrap .particle:nth-child(9) { animation-name: particle-burst-9; animation-delay: 0.055s; }
-        .btn-explode-wrap .particle:nth-child(10) { animation-name: particle-burst-10; animation-delay: 0.01s; }
-        .btn-explode-wrap .particle:nth-child(11) { animation-name: particle-burst-11; animation-delay: 0.03s; }
-        .btn-explode-wrap .particle:nth-child(12) { animation-name: particle-burst-12; animation-delay: 0.05s; }
-        .btn-explode-wrap .particle:nth-child(13) { animation-name: particle-burst-13; animation-delay: 0.02s; }
-        .btn-explode-wrap .particle:nth-child(14) { animation-name: particle-burst-14; animation-delay: 0.04s; }
-        .btn-explode-wrap .particle:nth-child(15) { animation-name: particle-burst-15; animation-delay: 0.06s; }
-        
-        @keyframes particle-burst-1 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-60px, -80px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-2 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(70px, -70px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-3 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-80px, 50px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-4 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(65px, 75px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-5 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-45px, -95px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-6 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(90px, -30px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-7 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-70px, -40px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-8 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(50px, -90px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-9 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-90px, 20px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-10 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(40px, 85px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-11 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-55px, 65px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-12 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(80px, 45px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-13 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-35px, -55px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-14 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(60px, -60px) scale(0); opacity: 0; } }
-        @keyframes particle-burst-15 { from { transform: translate(0,0) scale(1); opacity: 0.9; } to { transform: translate(-75px, 90px) scale(0); opacity: 0; } }
-        
-        button:not(.btn-secondary):not(.delete-btn):not(.genre-chip):not(.nav-tab):not(.collapsible-header) {
-            padding: 10px 18px;
-            background: var(--surface-2);
-            color: var(--accent);
-            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #fff;
+            border: none;
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-size: 0.9375rem;
             font-weight: 600;
             font-family: var(--font);
             letter-spacing: 0.02em;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255,255,255,0.05);
-            transform: perspective(400px) rotateX(0deg) scale(1);
-            -webkit-tap-highlight-color: transparent;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
         }
         
-        button.btn-explode:active {
-            transform: perspective(400px) rotateX(8deg) scale(0.97);
-            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.3);
+        button:not(.btn-secondary):not(.delete-btn):not(.btn-logout):not(.genre-chip):not(.nav-tab):not(.collapsible-header):hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
         }
         
-        button:not(.btn-secondary):not(.delete-btn):not(.collapsible-header):hover {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.25);
+        button:not(.btn-secondary):not(.delete-btn):not(.btn-logout):not(.genre-chip):not(.nav-tab):not(.collapsible-header):active {
+            transform: translateY(0);
         }
         
         .btn-secondary {
-            padding: 10px 18px;
+            padding: 12px 22px;
             background: transparent;
-            border: 1px solid #003473;
-            color: #156ed9;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
             border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-weight: 500;
             font-family: var(--font);
+            cursor: pointer;
             transition: background 0.2s, color 0.2s, border-color 0.2s;
         }
         
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             color: var(--text);
-            border-color: var(--text-muted);
+            border-color: var(--text-soft);
         }
         
         .action-buttons {
@@ -1504,20 +1439,21 @@
         
         /* ----- Botão excluir ----- */
         .delete-btn {
-            padding: 8px 14px;
+            padding: 10px 18px;
             background: transparent;
             color: var(--danger);
-            border: 1px solid var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.5);
             border-radius: var(--radius-sm);
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             font-family: var(--font);
+            cursor: pointer;
             transition: background 0.2s, border-color 0.2s, color 0.2s;
         }
         
         .delete-btn:hover {
-            background: var(--danger-soft);
-            border-color: #f87171;
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--danger);
             color: #fca5a5;
         }
         
