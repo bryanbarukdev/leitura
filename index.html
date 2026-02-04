@@ -1922,16 +1922,6 @@
             return [];
         }
         
-        function syncLocalStorageFromBooks(books) {
-            try {
-                const json = JSON.stringify(books);
-                localStorage.setItem(STORAGE_KEY, json);
-                localStorage.setItem(BACKUP_KEY, json);
-            } catch (e) {
-                console.warn('Falha ao sincronizar localStorage:', e);
-            }
-        }
-        
         async function pushToSupabase(books) {
             if (!supabaseClient) return { ok: false, error: 'Supabase não configurado' };
             const { data: { user } } = await supabaseClient.auth.getUser();
@@ -1948,7 +1938,7 @@
         }
         
         async function loadBooksFromStorage() {
-            // 1) Supabase (prioridade quando logado — nuvem = fonte da verdade)
+            // Supabase configurado e logado = APENAS nuvem, nunca localStorage
             if (supabaseClient) {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (user) {
@@ -1958,47 +1948,30 @@
                             .select('payload')
                             .eq('user_id', user.id)
                             .maybeSingle();
-                        if (!error && data) {
-                            const books = parseDataPayload(data.payload || []);
-                            syncLocalStorageFromBooks(books);
+                        if (!error) {
+                            const books = parseDataPayload(data?.payload || []);
                             return { books, fromSupabase: true };
                         }
                     } catch (e) {
                         console.warn('Falha ao carregar do Supabase:', e);
                     }
+                    return { books: [], fromSupabase: true };
                 }
             }
-            // 2) Arquivo JSON (mesmo diretório do HTML — servidor local ou hospedagem)
+            // Sem Supabase: JSON ou localStorage (fallback)
             try {
                 const url = DADOS_JSON_FILE + '?t=' + Date.now();
                 const res = await fetch(url, { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     const books = parseDataPayload(data);
-                    if (books.length > 0) {
-                        syncLocalStorageFromBooks(books);
-                        return { books, fromSupabase: false };
-                    }
+                    return { books, fromSupabase: false };
                 }
-            } catch (e) {
-                console.warn('Arquivo JSON não encontrado ou inacessível.', e);
-            }
-            // 3) localStorage (fallback offline)
+            } catch (e) { /* ignorar */ }
             try {
                 const data = localStorage.getItem(STORAGE_KEY);
                 if (data) return { books: parseDataPayload(JSON.parse(data)), fromSupabase: false };
-            } catch (e) {
-                console.warn('Falha ao ler localStorage:', e);
-            }
-            try {
-                const backup = localStorage.getItem(BACKUP_KEY);
-                if (backup) {
-                    const books = parseDataPayload(JSON.parse(backup));
-                    if (books.length > 0) return { books, fromSupabase: false };
-                }
-            } catch (e) {
-                console.warn('Falha ao ler backup:', e);
-            }
+            } catch (e) { /* ignorar */ }
             return { books: [], fromSupabase: false };
         }
         
@@ -2682,26 +2655,6 @@
             }
             
             saveToLocalStorage() {
-                const payload = this.getDataAsJsonPayload();
-                let json = JSON.stringify(this.books);
-                try {
-                    localStorage.setItem(STORAGE_KEY, json);
-                    localStorage.setItem(BACKUP_KEY, json);
-                } catch (e) {
-                    if (e.name === 'QuotaExceededError') {
-                        try {
-                            const withoutPdf = this.books.map(b => ({ ...b, pdfUrl: '' }));
-                            json = JSON.stringify(withoutPdf);
-                            localStorage.setItem(STORAGE_KEY, json);
-                            localStorage.setItem(BACKUP_KEY, json);
-                            Swal.fire({ title: 'PDF não salvo', text: 'Arquivo muito grande. O livro foi salvo sem o PDF. Nesta sessão você ainda pode abrir pela capa; após recarregar, anexe um PDF menor.', icon: 'warning' });
-                        } catch (e2) {
-                            Swal.fire({ title: 'Espaço cheio', text: 'Exporte o JSON (dados-leitura.json) e libere espaço no navegador.', icon: 'error' });
-                        }
-                    } else {
-                        Swal.fire({ title: 'Erro ao salvar', text: 'Exporte o JSON para não perder os dados.', icon: 'error' });
-                    }
-                }
                 if (supabaseClient) {
                     const statusEl = document.getElementById('sync-status');
                     if (statusEl) { statusEl.textContent = 'Enviando…'; statusEl.className = 'sync-status syncing'; }
@@ -2715,6 +2668,14 @@
                             Swal.fire({ title: 'Erro ao sincronizar', html: '<pre style="text-align:left;font-size:11px;overflow:auto;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">Verifique: tabela user_reading_data criada (execute supabase-schema.sql)? E-mail confirmado no Supabase?</p>', icon: 'error' });
                         }
                     });
+                } else {
+                    try {
+                        const json = JSON.stringify(this.books);
+                        localStorage.setItem(STORAGE_KEY, json);
+                        localStorage.setItem(BACKUP_KEY, json);
+                    } catch (e) {
+                        Swal.fire({ title: 'Erro ao salvar', text: 'Exporte o JSON para backup.', icon: 'error' });
+                    }
                 }
             }
             
@@ -3067,7 +3028,6 @@
                 const books = parseDataPayload(payload?.new?.payload || []);
                 if (books.length >= 0 && tracker) {
                     tracker.books = books.map(normalizeBook);
-                    syncLocalStorageFromBooks(books);
                     tracker.selectedBookId = null;
                     tracker.renderBooks();
                     tracker.updateUI();
@@ -3095,7 +3055,7 @@
         async function startApp() {
             const overlay = document.getElementById('auth-overlay');
             if (overlay) overlay.classList.remove('visible');
-            const { books, fromSupabase } = await loadBooksFromStorage();
+            const { books } = await loadBooksFromStorage();
             window.readingTracker = new ReadingTracker(books);
             const { data: { user } } = supabaseClient ? await supabaseClient.auth.getUser() : { data: { user: null } };
             if (supabaseClient && user) {
@@ -3103,11 +3063,6 @@
                 setupRealtimeSubscription(user.id, window.readingTracker);
                 const backupSpan = document.querySelector('.footer-backup span');
                 if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
-                if (!fromSupabase && books.length > 0) {
-                    const r = await pushToSupabase(books);
-                    if (r.ok) updateSyncUI('• Sincronizado com a nuvem', 'Migrado para nuvem', '');
-                    else if (r.error) console.warn('Migração para nuvem:', r.error);
-                }
             } else {
                 updateSyncUI('', 'Fonte: dados-leitura.json', '');
             }
