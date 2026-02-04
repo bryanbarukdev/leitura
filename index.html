@@ -1720,6 +1720,7 @@
                 <div class="footer-backup">
                     <span>Dados: <strong>dados-leitura.json</strong> ou <strong>Supabase</strong> (sincronização em nuvem).</span>
                     <div class="footer-buttons">
+                        <button type="button" id="btn-sync-now-mobile" class="btn-secondary" style="display: none;">Sincronizar agora</button>
                         <button type="button" id="export-json-mobile" class="btn-secondary">Exportar dados-leitura.json</button>
                         <button type="button" id="export-backup-mobile" class="btn-secondary">Backup (legado)</button>
                         <label class="btn-secondary import-label">
@@ -1871,6 +1872,7 @@
                     Carregar JSON / backup
                     <input type="file" id="import-backup-file" accept=".json" hidden>
                 </label>
+                <button type="button" id="btn-sync-now" class="btn-secondary" style="display: none;" title="Enviar dados para a nuvem">Sincronizar agora</button>
                 <button type="button" id="auth-logout" class="btn-secondary" style="display: none;">Sair da conta</button>
             </div>
         </div>
@@ -1930,6 +1932,21 @@
             }
         }
         
+        async function pushToSupabase(books) {
+            if (!supabaseClient) return { ok: false, error: 'Supabase não configurado' };
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return { ok: false, error: 'Faça login para sincronizar' };
+            let dataPayload = Array.isArray(books) ? books : (books?.books || []);
+            if (JSON.stringify(dataPayload).length > 500000) {
+                dataPayload = dataPayload.map(b => ({ ...b, pdfUrl: '' }));
+            }
+            const { error } = await supabaseClient.from('user_reading_data').upsert(
+                { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() },
+                { onConflict: 'user_id' }
+            );
+            return error ? { ok: false, error } : { ok: true };
+        }
+        
         async function loadBooksFromStorage() {
             // 1) Supabase (prioridade quando logado — nuvem = fonte da verdade)
             if (supabaseClient) {
@@ -1943,10 +1960,8 @@
                             .maybeSingle();
                         if (!error && data) {
                             const books = parseDataPayload(data.payload || []);
-                            if (books.length > 0) {
-                                syncLocalStorageFromBooks(books);
-                                return books;
-                            }
+                            syncLocalStorageFromBooks(books);
+                            return { books, fromSupabase: true };
                         }
                     } catch (e) {
                         console.warn('Falha ao carregar do Supabase:', e);
@@ -1962,7 +1977,7 @@
                     const books = parseDataPayload(data);
                     if (books.length > 0) {
                         syncLocalStorageFromBooks(books);
-                        return books;
+                        return { books, fromSupabase: false };
                     }
                 }
             } catch (e) {
@@ -1971,7 +1986,7 @@
             // 3) localStorage (fallback offline)
             try {
                 const data = localStorage.getItem(STORAGE_KEY);
-                if (data) return parseDataPayload(JSON.parse(data));
+                if (data) return { books: parseDataPayload(JSON.parse(data)), fromSupabase: false };
             } catch (e) {
                 console.warn('Falha ao ler localStorage:', e);
             }
@@ -1979,12 +1994,12 @@
                 const backup = localStorage.getItem(BACKUP_KEY);
                 if (backup) {
                     const books = parseDataPayload(JSON.parse(backup));
-                    if (books.length > 0) return books;
+                    if (books.length > 0) return { books, fromSupabase: false };
                 }
             } catch (e) {
                 console.warn('Falha ao ler backup:', e);
             }
-            return [];
+            return { books: [], fromSupabase: false };
         }
         
         function normalizeBook(book) {
@@ -2200,6 +2215,27 @@
                     e.target.value = '';
                 });
                 
+                // Sincronizar agora (Supabase)
+                const syncBtn = document.getElementById('btn-sync-now');
+                if (supabaseClient && syncBtn) {
+                    syncBtn.style.display = '';
+                    syncBtn.addEventListener('click', async () => {
+                        syncBtn.disabled = true;
+                        const result = await pushToSupabase(this.books);
+                        syncBtn.disabled = false;
+                        if (result.ok) {
+                            updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
+                            Swal.fire({ title: 'Sincronizado', text: 'Dados enviados para a nuvem com sucesso.', icon: 'success' });
+                        } else {
+                            const msg = result.error?.message || (typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
+                            Swal.fire({
+                                title: 'Erro ao sincronizar',
+                                html: '<pre style="text-align:left;font-size:12px;overflow:auto;max-height:200px;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">Confirme: executou o <strong>supabase-schema.sql</strong> no SQL Editor? Tabela <code>user_reading_data</code> existe? E-mail confirmado em Authentication?</p>',
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
                 // Sair da conta (quando usando Supabase)
                 const logoutBtn = document.getElementById('auth-logout');
                 if (supabaseClient && logoutBtn) {
@@ -2299,6 +2335,23 @@
                     document.addEventListener('mouseup', () => { if (rightCol.classList.contains('mobile-dragging')) onEnd(); });
                 }
                 
+                // Mobile: Sincronizar agora (Supabase)
+                const syncBtnMobile = document.getElementById('btn-sync-now-mobile');
+                if (supabaseClient && syncBtnMobile) {
+                    syncBtnMobile.style.display = '';
+                    syncBtnMobile.addEventListener('click', async () => {
+                        syncBtnMobile.disabled = true;
+                        const result = await pushToSupabase(this.books);
+                        syncBtnMobile.disabled = false;
+                        if (result.ok) {
+                            updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
+                            Swal.fire({ title: 'Sincronizado', text: 'Dados enviados para a nuvem.', icon: 'success' });
+                        } else {
+                            const msg = result.error?.message || (typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
+                            Swal.fire({ title: 'Erro ao sincronizar', html: '<pre style="font-size:11px;overflow:auto;">' + msg + '</pre>', icon: 'error' });
+                        }
+                    });
+                }
                 // Mobile: exportar JSON e backup (seção Mais)
                 document.getElementById('export-json-mobile')?.addEventListener('click', () => this.exportToJsonFile());
                 document.getElementById('export-backup-mobile')?.addEventListener('click', () => this.exportBackup());
@@ -2650,25 +2703,16 @@
                     }
                 }
                 if (supabaseClient) {
-                    supabaseClient.auth.getUser().then(({ data: { user } }) => {
-                        if (user) {
-                            const statusEl = document.getElementById('sync-status');
-                            if (statusEl) { statusEl.textContent = 'Enviando…'; statusEl.className = 'sync-status syncing'; }
-                            let dataPayload = payload.books;
-                            if (JSON.stringify(dataPayload).length > 500000) {
-                                dataPayload = this.books.map(b => ({ ...b, pdfUrl: '' }));
-                            }
-                            supabaseClient.from('user_reading_data').upsert(
-                                { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() },
-                                { onConflict: 'user_id' }
-                            ).then(({ error }) => {
-                                if (error) {
-                                    console.warn('Sync Supabase:', error);
-                                    updateSyncUI('', 'Erro ao sincronizar', 'error');
-                                } else {
-                                    updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
-                                }
-                            });
+                    const statusEl = document.getElementById('sync-status');
+                    if (statusEl) { statusEl.textContent = 'Enviando…'; statusEl.className = 'sync-status syncing'; }
+                    pushToSupabase(this.books).then(({ ok, error }) => {
+                        if (ok) {
+                            updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
+                        } else {
+                            const msg = error?.message || (typeof error === 'string' ? error : 'Erro desconhecido');
+                            updateSyncUI('', 'Erro ao sincronizar', 'error');
+                            console.warn('Sync Supabase:', error);
+                            Swal.fire({ title: 'Erro ao sincronizar', html: '<pre style="text-align:left;font-size:11px;overflow:auto;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">Verifique: tabela user_reading_data criada (execute supabase-schema.sql)? E-mail confirmado no Supabase?</p>', icon: 'error' });
                         }
                     });
                 }
@@ -3051,7 +3095,7 @@
         async function startApp() {
             const overlay = document.getElementById('auth-overlay');
             if (overlay) overlay.classList.remove('visible');
-            const books = await loadBooksFromStorage();
+            const { books, fromSupabase } = await loadBooksFromStorage();
             window.readingTracker = new ReadingTracker(books);
             const { data: { user } } = supabaseClient ? await supabaseClient.auth.getUser() : { data: { user: null } };
             if (supabaseClient && user) {
@@ -3059,6 +3103,11 @@
                 setupRealtimeSubscription(user.id, window.readingTracker);
                 const backupSpan = document.querySelector('.footer-backup span');
                 if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
+                if (!fromSupabase && books.length > 0) {
+                    const r = await pushToSupabase(books);
+                    if (r.ok) updateSyncUI('• Sincronizado com a nuvem', 'Migrado para nuvem', '');
+                    else if (r.error) console.warn('Migração para nuvem:', r.error);
+                }
             } else {
                 updateSyncUI('', 'Fonte: dados-leitura.json', '');
             }
