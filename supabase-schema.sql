@@ -21,9 +21,23 @@ COMMENT ON COLUMN user_reading_data.updated_at IS 'Última atualização';
 ALTER TABLE user_reading_data ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Usuário acessa apenas seus dados" ON user_reading_data;
-CREATE POLICY "Usuário acessa apenas seus dados"
-  ON user_reading_data
-  FOR ALL
+DROP POLICY IF EXISTS "Usuário pode inserir seus dados" ON user_reading_data;
+DROP POLICY IF EXISTS "Usuário pode atualizar seus dados" ON user_reading_data;
+DROP POLICY IF EXISTS "Usuário pode ler seus dados" ON user_reading_data;
+
+CREATE POLICY "Usuário pode ler seus dados"
+  ON user_reading_data FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Usuário pode inserir seus dados"
+  ON user_reading_data FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Usuário pode atualizar seus dados"
+  ON user_reading_data FOR UPDATE
+  TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 

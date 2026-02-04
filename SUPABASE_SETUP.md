@@ -21,6 +21,8 @@ Edite `js/config.js` com sua **Project URL** e **anon public**.
 3. Clique em **Run** e confira se não há erros
 4. Em **Table Editor**, confirme que a tabela `user_reading_data` foi criada
 
+**Se já executou antes:** execute de novo o schema atualizado (as políticas RLS foram ajustadas para INSERT/UPDATE funcionarem).
+
 ## 4. Confirmar e-mail (se usar signup)
 
 Em **Authentication** → **Providers** → **Email**:  

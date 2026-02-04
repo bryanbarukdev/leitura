@@ -25,11 +25,16 @@
             if (JSON.stringify(dataPayload).length > 500000) {
                 dataPayload = dataPayload.map(b => ({ ...b, pdfUrl: '' }));
             }
-            const { error } = await supabaseClient.from('user_reading_data').upsert(
-                { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() },
-                { onConflict: 'user_id' }
-            );
-            return error ? { ok: false, error } : { ok: true };
+            const row = { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() };
+            const { data, error } = await supabaseClient.from('user_reading_data').upsert(row, {
+                onConflict: 'user_id',
+                ignoreDuplicates: false
+            }).select();
+            if (error) {
+                console.error('Supabase upsert erro:', error);
+                return { ok: false, error };
+            }
+            return { ok: true };
         }
         
         async function loadBooksFromStorage() {
@@ -760,10 +765,14 @@
                         if (ok) {
                             updateSyncUI('• Sincronizado com a nuvem', 'Salvo', '');
                         } else {
-                            const msg = error?.message || (typeof error === 'string' ? error : 'Erro desconhecido');
+                            const msg = error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
                             updateSyncUI('', 'Erro ao sincronizar', 'error');
-                            console.warn('Sync Supabase:', error);
-                            Swal.fire({ title: 'Erro ao sincronizar', html: '<pre style="text-align:left;font-size:11px;overflow:auto;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">Verifique: tabela user_reading_data criada (execute supabase-schema.sql)? E-mail confirmado no Supabase?</p>', icon: 'error' });
+                            console.error('Sync Supabase:', error);
+                            Swal.fire({
+                                title: 'Erro ao sincronizar',
+                                html: '<pre style="text-align:left;font-size:11px;overflow:auto;max-height:180px;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">1) Execute o supabase-schema.sql no SQL Editor.<br>2) Desative "Confirm email" em Authentication > Providers.<br>3) Confira as políticas RLS.</p>',
+                                icon: 'error'
+                            });
                         }
                     });
                 } else if (!SUPABASE_CONFIGURED) {
