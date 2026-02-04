@@ -399,7 +399,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         
-        .section:hover {
+        .section:not(.collapsible):hover {
             border-color: rgba(59, 130, 246, 0.2);
         }
         
@@ -419,33 +419,43 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: var(--space);
-            background: none;
+            padding: 16px var(--space);
+            background: var(--surface);
             border: none;
+            border-bottom: 1px solid var(--border);
             cursor: pointer;
-            color: inherit;
+            color: var(--text);
             font-family: inherit;
+            font-size: inherit;
             text-align: left;
-            transition: background 0.2s;
+            transition: background 0.15s;
             -webkit-tap-highlight-color: transparent;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .section.collapsible.collapsed .collapsible-header {
+            border-bottom-color: transparent;
         }
         
         .collapsible-header:hover {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--surface-2);
         }
         
         .collapsible-header h2 {
-            margin-bottom: 0;
-            font-size: 1rem;
+            margin: 0;
+            font-size: 0.9375rem;
             font-weight: 600;
+            color: var(--text);
         }
         
         .collapsible-icon {
             flex-shrink: 0;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
             transition: transform 0.2s;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") center/contain no-repeat;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") center/contain no-repeat;
         }
         
         .section.collapsible.collapsed .collapsible-icon {
@@ -480,16 +490,6 @@
             position: relative;
         }
         
-        #meus-livros #books-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 40px;
-            background: linear-gradient(to right, transparent, var(--surface));
-            pointer-events: none;
-        }
         
         #meus-livros #books-container::-webkit-scrollbar {
             width: 6px;
