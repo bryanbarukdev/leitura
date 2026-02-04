@@ -1190,10 +1190,11 @@
                 
                 // Ordenar por data (mais recente primeiro)
                 const sortedSessions = [...book.readingSessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const lastAddedSession = book.readingSessions[book.readingSessions.length - 1];
                 
                 container.innerHTML = '';
                 
-                sortedSessions.forEach((session, index) => {
+                sortedSessions.forEach((session) => {
                     const sessionElement = document.createElement('div');
                     sessionElement.className = 'reading-session';
                     
@@ -1206,9 +1207,9 @@
                         starsHtml += `<span class="star-svg ${filled}"><svg viewBox="0 0 24 24"><path d="${starPath}"/></svg></span>`;
                     }
                     
-                    // Só a última sessão (mais recente) pode ser excluída
-                    const isLastSession = index === 0;
-                    const deleteBtnHtml = isLastSession
+                    // Só a última sessão cadastrada (última no array) pode ser excluída
+                    const isLastAdded = lastAddedSession && session.id === lastAddedSession.id;
+                    const deleteBtnHtml = isLastAdded
                         ? `<button type="button" class="btn-delete-session" data-session-id="${session.id}" aria-label="Excluir sessão" title="Excluir sessão">×</button>`
                         : '';
                     
@@ -1225,7 +1226,8 @@
                         ${deleteBtnHtml}
                     `;
                     
-                    if (isLastSession) {
+                    if (isLastAdded) {
+                        sessionElement.classList.add('has-delete-btn');
                         sessionElement.querySelector('.btn-delete-session').addEventListener('click', () => this.deleteSession(session.id));
                     }
                     container.appendChild(sessionElement);
