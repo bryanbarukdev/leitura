@@ -8,7 +8,11 @@ Para sincronizar seus dados entre celular e PC, configure o Supabase:
 2. **New Project** → nome, senha do banco, região
 3. Em **Project Settings** → **API**: copie **Project URL** e **anon public**
 
-## 2. Executar o schema (OBRIGATÓRIO)
+## 2. Configurar credenciais
+
+Edite `js/config.js` com sua **Project URL** e **anon public**.
+
+## 3. Executar o schema (OBRIGATÓRIO)
 
 **Sem isso, a tabela não existe e o sync não funciona.**
 
@@ -17,12 +21,12 @@ Para sincronizar seus dados entre celular e PC, configure o Supabase:
 3. Clique em **Run** e confira se não há erros
 4. Em **Table Editor**, confirme que a tabela `user_reading_data` foi criada
 
-## 3. Confirmar e-mail (se usar signup)
+## 4. Confirmar e-mail (se usar signup)
 
 Em **Authentication** → **Providers** → **Email**:  
 desative "Confirm email" se quiser usar sem confirmar no e-mail.
 
-## 4. Usar
+## 5. Usar
 
 1. Abra o site no celular e no PC
 2. Crie conta ou entre com o mesmo e-mail e senha
