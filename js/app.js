@@ -27,16 +27,36 @@
             }
         }
         
+        async function getCurrentUser() {
+            if (!supabaseClient) return null;
+            let { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                const { data, error } = await supabaseClient.auth.refreshSession();
+                if (!error && data?.session) session = data.session;
+            }
+            if (session?.user) return session.user;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            return user || null;
+        }
+        
         async function pushToSupabase(books) {
             if (!supabaseClient) {
                 const r = { ok: false, error: 'Supabase não configurado', data: null };
                 logSupabase('push', r);
                 return r;
             }
-            const { data: { user } } = await supabaseClient.auth.getUser();
+            const user = await getCurrentUser();
             if (!user) {
-                const r = { ok: false, error: 'Faça login para sincronizar', data: null };
+                const r = { ok: false, error: 'Sessão expirada. Faça login novamente.', data: null };
                 logSupabase('push', r);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Sessão expirada',
+                        text: 'Faça login novamente para sincronizar. A página será recarregada.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    }).then(() => location.reload());
+                }
                 return r;
             }
             let dataPayload = Array.isArray(books) ? books : (books?.books || []);
@@ -67,7 +87,7 @@
                     console.error('Supabase configurado mas biblioteca não carregou. Verifique a conexão e a ordem dos scripts.');
                     return { books: [], fromSupabase: true };
                 }
-                const { data: { user } } = await supabaseClient.auth.getUser();
+                const user = await getCurrentUser();
                 if (user) {
                     try {
                         const response = await supabaseClient
@@ -795,12 +815,13 @@
                         } else {
                             const msg = error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
                             updateSyncUI('', 'Erro ao sincronizar', 'error');
-                            console.error('Sync Supabase:', error);
-                            Swal.fire({
-                                title: 'Erro ao sincronizar',
-                                html: '<pre style="text-align:left;font-size:11px;overflow:auto;max-height:180px;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">1) Execute o supabase-schema.sql no SQL Editor.<br>2) Desative "Confirm email" em Authentication > Providers.<br>3) Confira as políticas RLS.</p>',
-                                icon: 'error'
-                            });
+                            if (!/sessão|login/i.test(String(msg))) {
+                                Swal.fire({
+                                    title: 'Erro ao sincronizar',
+                                    html: '<pre style="text-align:left;font-size:11px;overflow:auto;max-height:180px;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">1) Execute o supabase-schema.sql no SQL Editor.<br>2) Desative "Confirm email" em Authentication > Providers.<br>3) Confira Site URL em Authentication > URL Configuration.</p>',
+                                    icon: 'error'
+                                });
+                            }
                         }
                     });
                 } else if (!SUPABASE_CONFIGURED) {
@@ -1192,7 +1213,7 @@
             if (overlay) overlay.classList.remove('visible');
             const { books } = await loadBooksFromStorage();
             window.readingTracker = new ReadingTracker(books);
-            const { data: { user } } = supabaseClient ? await supabaseClient.auth.getUser() : { data: { user: null } };
+                const user = supabaseClient ? await getCurrentUser() : null;
             if (supabaseClient && user) {
                 updateSyncUI('• Sincronizado com a nuvem', '', '');
                 setupRealtimeSubscription(user.id, window.readingTracker);
@@ -1255,7 +1276,7 @@
                     }
                     return;
                 }
-                const { data: { user } } = await supabaseClient.auth.getUser();
+                const user = await getCurrentUser();
                 const overlay = document.getElementById('auth-overlay');
                 if (user) {
                     await startApp();

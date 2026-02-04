@@ -23,12 +23,18 @@ Edite `js/config.js` com sua **Project URL** e **anon public**.
 
 **Se já executou antes:** execute de novo o schema atualizado (as políticas RLS foram ajustadas para INSERT/UPDATE funcionarem).
 
-## 4. Confirmar e-mail (se usar signup)
+## 4. Configurar URL do site (Auth)
+
+Em **Authentication** → **URL Configuration**:
+- **Site URL**: `https://seu-usuario.github.io` (ou a URL onde o app está hospedado)
+- **Redirect URLs**: adicione `https://seu-usuario.github.io/**` para permitir redirects
+
+## 5. Confirmar e-mail (se usar signup)
 
 Em **Authentication** → **Providers** → **Email**:  
 desative "Confirm email" se quiser usar sem confirmar no e-mail.
 
-## 5. Usar
+## 6. Usar
 
 1. Abra o site no celular e no PC
 2. Crie conta ou entre com o mesmo e-mail e senha
