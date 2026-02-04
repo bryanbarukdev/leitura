@@ -17,6 +17,9 @@ COMMENT ON COLUMN user_reading_data.payload IS 'Array de livros em JSON';
 COMMENT ON COLUMN user_reading_data.created_at IS 'Data de criação do registro';
 COMMENT ON COLUMN user_reading_data.updated_at IS 'Última atualização';
 
+GRANT ALL ON user_reading_data TO authenticated;
+GRANT ALL ON user_reading_data TO service_role;
+
 -- RLS (Row Level Security)
 ALTER TABLE user_reading_data ENABLE ROW LEVEL SECURITY;
 

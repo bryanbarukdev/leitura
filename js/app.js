@@ -43,12 +43,19 @@
             if (JSON.stringify(dataPayload).length > 500000) {
                 dataPayload = dataPayload.map(b => ({ ...b, pdfUrl: '' }));
             }
-            const row = { user_id: user.id, payload: dataPayload, updated_at: new Date().toISOString() };
-            const response = await supabaseClient.from('user_reading_data').upsert(row, {
-                onConflict: 'user_id',
-                ignoreDuplicates: false
-            }).select();
-            const { data, error } = response;
+            const payload = dataPayload;
+            const updated_at = new Date().toISOString();
+            let data, error;
+            const { data: existing } = await supabaseClient.from('user_reading_data').select('user_id').eq('user_id', user.id).maybeSingle();
+            if (existing) {
+                const res = await supabaseClient.from('user_reading_data').update({ payload, updated_at }).eq('user_id', user.id).select();
+                data = res.data;
+                error = res.error;
+            } else {
+                const res = await supabaseClient.from('user_reading_data').insert({ user_id: user.id, payload, updated_at }).select();
+                data = res.data;
+                error = res.error;
+            }
             const result = { ok: !error, error: error ? { message: error.message, code: error.code, details: error.details } : null, data };
             logSupabase('push', result);
             return result;
