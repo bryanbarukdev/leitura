@@ -1,12 +1,13 @@
-// Config vem de js/config.js (window.SUPABASE_URL, window.SUPABASE_ANON_KEY, window.DADOS_JSON_FILE)
-        const SUPABASE_URL = window.SUPABASE_URL || '';
-        const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
-        const DADOS_JSON_FILE = window.DADOS_JSON_FILE || 'dados-leitura.json';
+// --- CONFIGURAÇÃO SUPABASE (edite aqui ou use js/config.js) ---
+        const SUPABASE_URL = (typeof window.SUPABASE_URL !== 'undefined' ? window.SUPABASE_URL : '') || 'https://dtcloojdcochyfjxlisk.supabase.co';
+        const SUPABASE_ANON_KEY = (typeof window.SUPABASE_ANON_KEY !== 'undefined' ? window.SUPABASE_ANON_KEY : '') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y2xvb2pkY29jaHlmanhsaXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjc0NTUsImV4cCI6MjA4NTgwMzQ1NX0.UXShBSGJcrD7vucFfslYMd1kgiG_ljXqwhxlBzkzCAg';
+        const DADOS_JSON_FILE = (typeof window.DADOS_JSON_FILE !== 'undefined' ? window.DADOS_JSON_FILE : '') || 'dados-leitura.json';
         const STORAGE_KEY = 'readingTrackerBooks';
         const BACKUP_KEY = 'readingTrackerBooks_backup';
+        const SUPABASE_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
         
         let supabaseClient = null;
-        if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+        if (SUPABASE_CONFIGURED && typeof window.supabase !== 'undefined') {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
         
@@ -32,8 +33,11 @@
         }
         
         async function loadBooksFromStorage() {
-            // Supabase configurado e logado = APENAS nuvem, nunca localStorage
-            if (supabaseClient) {
+            if (SUPABASE_CONFIGURED) {
+                if (!supabaseClient) {
+                    console.error('Supabase configurado mas biblioteca não carregou. Verifique a conexão e a ordem dos scripts.');
+                    return { books: [], fromSupabase: true };
+                }
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (user) {
                     try {
@@ -51,10 +55,10 @@
                     }
                     return { books: [], fromSupabase: true };
                 }
+                return { books: [], fromSupabase: true };
             }
-            // Fallback: JSON ou localStorage (quando Supabase não está ativo)
             try {
-                const url = DADOS_JSON_FILE + '?t=' + Date.now();
+                const url = (DADOS_JSON_FILE || 'dados-leitura.json') + '?t=' + Date.now();
                 const res = await fetch(url, { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
@@ -749,7 +753,7 @@
             }
             
             saveToLocalStorage() {
-                if (supabaseClient) {
+                if (SUPABASE_CONFIGURED && supabaseClient) {
                     const statusEl = document.getElementById('sync-status');
                     if (statusEl) { statusEl.textContent = 'Enviando…'; statusEl.className = 'sync-status syncing'; }
                     pushToSupabase(this.books).then(({ ok, error }) => {
@@ -762,7 +766,7 @@
                             Swal.fire({ title: 'Erro ao sincronizar', html: '<pre style="text-align:left;font-size:11px;overflow:auto;">' + msg + '</pre><p style="margin-top:12px;font-size:13px;">Verifique: tabela user_reading_data criada (execute supabase-schema.sql)? E-mail confirmado no Supabase?</p>', icon: 'error' });
                         }
                     });
-                } else {
+                } else if (!SUPABASE_CONFIGURED) {
                     try {
                         const json = JSON.stringify(this.books);
                         localStorage.setItem(STORAGE_KEY, json);
@@ -1158,10 +1162,7 @@
                 const backupSpan = document.querySelector('.footer-backup span');
                 if (backupSpan) backupSpan.innerHTML = 'Dados sincronizados na nuvem (Supabase). Exporte o JSON para backup local.';
             } else {
-                updateSyncUI('', 'Modo offline: dados do JSON ou navegador (Supabase não conectado)', '');
-                if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-                    console.warn('Supabase configurado mas não conectou. Verifique: config.js e Supabase JS carregaram? Abra por servidor local (não file://)');
-                }
+                updateSyncUI('', 'Fonte: dados-leitura.json ou navegador', '');
             }
         }
         
@@ -1209,7 +1210,14 @@
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
-            if (supabaseClient) {
+            if (SUPABASE_CONFIGURED) {
+                if (!supabaseClient) {
+                    const msg = document.getElementById('auth-overlay') || document.body;
+                    if (msg) {
+                        msg.innerHTML = '<div style="padding:24px;text-align:center;color:#ef4444;max-width:400px;margin:auto"><h2>Supabase não carregou</h2><p>Verifique sua conexão. A biblioteca do Supabase deve carregar antes do app.</p></div>';
+                    }
+                    return;
+                }
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 const overlay = document.getElementById('auth-overlay');
                 if (user) {
