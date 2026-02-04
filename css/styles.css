@@ -893,14 +893,13 @@
             position: relative;
             display: inline-flex;
             padding: 12px 24px;
-            border: none;
+            border: 1px solid var(--border);
             font-size: 0.9375rem;
             background-color: transparent;
             border-radius: 100px;
             font-weight: 600;
             font-family: var(--font);
-            color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
             cursor: pointer;
             overflow: hidden;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
@@ -925,7 +924,7 @@
         }
         
         .animated-button:hover {
-            box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.35);
+            border-color: var(--text-soft);
             color: var(--text);
         }
         
