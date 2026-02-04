@@ -24,7 +24,7 @@
             --radius-sm: 8px;
             --space: 24px;
             --space-sm: 12px;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             --font-display: 'Bebas Neue', sans-serif;
         }
         
@@ -35,6 +35,9 @@
         body {
             font-family: var(--font);
             background: var(--bg);
+            background-image: 
+                radial-gradient(ellipse 120% 80% at 50% -20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 100% 50%, rgba(99, 102, 241, 0.04) 0%, transparent 40%);
             color: var(--text);
             line-height: 1.6;
             font-size: 16px;
@@ -68,36 +71,304 @@
             }
         }
         
-        /* ----- Header ----- */
-        header {
+        /* ----- Header / Nav ----- */
+        .main-header {
             grid-column: 1 / -1;
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: var(--space);
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 0;
+            padding: var(--space) 0;
+            border-bottom: none;
         }
         
-        header h1 {
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.125rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+        
+        .logo-text {
             font-family: var(--font-display);
-            font-size: 3.25rem;
+            font-size: 1.75rem;
             font-weight: 400;
             letter-spacing: 0.02em;
-            color: var(--text);
-            margin-bottom: 6px;
-            line-height: 1.1;
         }
         
-        @media (max-width: 520px) {
-            header h1 {
-                font-size: 2.5rem;
+        .btn-logout {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            border-color: var(--text-soft);
+        }
+        
+        /* ----- Hero ----- */
+        .hero {
+            grid-column: 1 / -1;
+            position: relative;
+            padding: 64px 0 80px;
+            margin-bottom: 48px;
+            overflow: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 20px;
+        }
+        
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: 0.02em;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        
+        @media (max-width: 640px) {
+            .hero {
+                padding: 40px 0 48px;
+                margin-bottom: 32px;
+            }
+            .hero-title {
+                font-size: 2.25rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
             }
         }
         
-        header p {
+        /* ----- Features ----- */
+        .features-section {
+            grid-column: 1 / -1;
+            margin-bottom: 64px;
+        }
+        
+        .section-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        
+        .section-badge-inline {
+            margin-bottom: 8px;
+        }
+        
+        .features-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 32px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .feature-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-soft);
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent);
+        }
+        
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 960px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 560px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ----- Dashboard / Stats Overview ----- */
+        .dashboard-section {
+            grid-column: 1 / -1;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        
+        .stats-overview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .stat-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-width: 120px;
+        }
+        
+        .stat-pill-value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        
+        .stat-pill-label {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* ----- App Container ----- */
+        .app-container {
+            margin-top: 0;
+        }
+        
+        /* ----- Footer ----- */
+        .main-footer {
+            grid-column: 1 / -1;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 0.9375rem;
             color: var(--text-muted);
-            font-weight: 400;
-            letter-spacing: 0.01em;
+        }
+        
+        .footer-brand .logo-icon {
+            font-size: 1.25rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
         }
         
         /* ----- Títulos de seção ----- */
@@ -123,6 +394,11 @@
             padding: var(--space);
             margin-bottom: var(--space);
             border: 1px solid var(--border);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .section:hover {
+            border-color: rgba(59, 130, 246, 0.2);
         }
         
         .section:last-child {
@@ -412,11 +688,6 @@
             outline: none;
         }
         
-        .genre-chips .genre-chip:active {
-            box-shadow: inset 0 0 0 1px var(--text-soft);
-            color: var(--text);
-        }
-        
         @media (hover: hover) {
             .genre-chips .genre-chip:hover {
                 box-shadow: inset 0 0 0 1px var(--text-soft);
@@ -426,6 +697,12 @@
                 background: var(--accent-soft);
                 box-shadow: inset 0 0 0 1px var(--accent);
                 color: var(--accent-hover);
+            }
+        }
+        
+        @media (hover: none) {
+            .genre-chips .genre-chip:active {
+                opacity: 0.85;
             }
         }
         
@@ -1229,8 +1506,51 @@
                 padding-bottom: env(safe-area-inset-bottom, 0);
             }
             
-            header.desktop-header {
-                display: none;
+            .main-header {
+                padding: 16px;
+                padding-top: calc(16px + env(safe-area-inset-top, 0px));
+            }
+            
+            .logo-text {
+                font-size: 1.35rem;
+            }
+            
+            .hero {
+                padding: 28px 16px 36px;
+                margin-bottom: 24px;
+            }
+            
+            .hero-title {
+                font-size: 1.85rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.9375rem;
+            }
+            
+            .features-section {
+                padding: 0 16px;
+                margin-bottom: 32px;
+            }
+            
+            .features-title {
+                font-size: 1.35rem;
+            }
+            
+            .dashboard-section {
+                padding: 0 16px;
+                margin-bottom: 24px;
+            }
+            
+            .stat-pill {
+                padding: 16px 18px;
+                min-width: 0;
+                flex: 1;
+                min-width: calc(50% - 8px);
+            }
+            
+            .stat-pill-value {
+                font-size: 1.5rem;
             }
             
             .container {

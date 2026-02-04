@@ -681,6 +681,7 @@
                 
                 // Atualizar UI
                 this.updateUI();
+                this.updateStatsOverview();
                 this.renderReadingSessions();
                 
                 // Limpar formulário
@@ -800,6 +801,7 @@
             }
             
             renderBooks() {
+                this.updateStatsOverview();
                 const container = document.getElementById('books-container');
                 
                 if (this.books.length === 0) {
@@ -1101,6 +1103,28 @@
                 
                 const sum = book.readingSessions.reduce((total, session) => total + session.rating, 0);
                 return sum / book.readingSessions.length;
+            }
+            
+            updateStatsOverview() {
+                const totalBooks = this.books.length;
+                let totalPagesRead = 0;
+                let totalMinutes = 0;
+                this.books.forEach(book => {
+                    totalPagesRead += this.calculatePagesRead(book);
+                    if (book.readingSessions && book.readingSessions.length) {
+                        book.readingSessions.forEach(s => { totalMinutes += s.time || 0; });
+                    }
+                });
+                const completed = this.books.filter(b => b.status === 'concluido').length;
+                const totalHours = totalMinutes > 0 ? (totalMinutes / 60).toFixed(1) : '0';
+                const elBooks = document.getElementById('stat-total-books');
+                const elPages = document.getElementById('stat-total-pages');
+                const elCompleted = document.getElementById('stat-completed');
+                const elHours = document.getElementById('stat-total-hours');
+                if (elBooks) elBooks.textContent = totalBooks;
+                if (elPages) elPages.textContent = totalPagesRead;
+                if (elCompleted) elCompleted.textContent = completed;
+                if (elHours) elHours.textContent = totalHours + 'h';
             }
             
             getStatusText(status) {

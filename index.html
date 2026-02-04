@@ -10,7 +10,7 @@
     <title>Painel de Progresso de Leitura</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -29,14 +29,87 @@
             <button type="submit" class="btn-primary" id="auth-submit">Entrar</button>
         </form>
     </div>
-    <header class="desktop-header">
-        <h1>Painel de Leitura</h1>
-        <p>Acompanhe seu progresso de leitura de forma simples</p>
+    <header class="main-header">
+        <nav class="nav-bar">
+            <a href="#" class="logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">Painel de Leitura</span>
+            </a>
+            <button type="button" id="auth-logout" class="btn-logout" style="display: none;" aria-label="Sair da conta" title="Sair da conta">Sair</button>
+        </nav>
     </header>
     
-    <div class="container">
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <span class="hero-badge">Seu rastreador de leitura</span>
+            <h1 class="hero-title">Acompanhe cada página,<br>alcance suas metas</h1>
+            <p class="hero-subtitle">Cadastre livros, registre sessões e veja seu progresso em tempo real. Sincronize entre celular e PC.</p>
+        </div>
+    </section>
+    
+    <section class="features-section">
+        <div class="section-badge">Recursos</div>
+        <h2 class="features-title">Tudo que você precisa para ler mais</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </div>
+                <h3>Biblioteca organizada</h3>
+                <p>Cadastre livros com capa, PDF e gêneros. Filtre por status e acompanhe tudo em um só lugar.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                </div>
+                <h3>Progresso em tempo real</h3>
+                <p>Registre sessões de leitura, páginas lidas e tempo. Veja estatísticas e estimativas de conclusão.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <h3>Sincronização na nuvem</h3>
+                <p>Seus dados salvos automaticamente. Acesse no celular e no computador sem perder nada.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <h3>Anotações e avaliações</h3>
+                <p>Faça notas por livro e avalie cada sessão com estrelas. Histórico completo de leituras.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="dashboard-section" id="dashboard-section">
+        <div class="section-badge">Sua biblioteca</div>
+        <h2 class="dashboard-title">Dashboard</h2>
+        <div class="stats-overview" id="stats-overview">
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="stat-total-books">0</span>
+                <span class="stat-pill-label">Livros</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="stat-total-pages">0</span>
+                <span class="stat-pill-label">Páginas lidas</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="stat-completed">0</span>
+                <span class="stat-pill-label">Concluídos</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="stat-total-hours">0h</span>
+                <span class="stat-pill-label">Tempo total</span>
+            </div>
+        </div>
+    </section>
+    
+    <div class="container app-container">
         <div class="left-column">
             <div class="section" id="mobile-panel-form">
+                <div class="section-badge section-badge-inline">Adicionar</div>
                 <h2>Cadastrar Novo Livro</h2>
                 <form id="book-form" autocomplete="off">
                     <div class="form-group">
@@ -108,6 +181,7 @@
             </div>
             
             <div class="section book-list" id="mobile-panel-list">
+                <div class="section-badge section-badge-inline">Lista</div>
                 <h2>Meus Livros</h2>
                 <div id="books-container">
                     <!-- Livros serão carregados aqui via JavaScript -->
@@ -246,12 +320,17 @@
         </div>
     </div>
     
-    <footer>
-        <p class="footer-note">
-            Painel de Leitura
-            <span id="sync-source" class="sync-source"></span>
-            <span id="sync-status" class="sync-status" aria-live="polite"></span>
-        </p>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-icon">📚</span>
+                <span>Painel de Leitura</span>
+            </div>
+            <div class="footer-links">
+                <span id="sync-source" class="sync-source"></span>
+                <span id="sync-status" class="sync-status" aria-live="polite"></span>
+            </div>
+        </div>
     </footer>
     
     <nav class="bottom-nav mobile-only" aria-label="Navegação principal">
