@@ -331,6 +331,7 @@
                 // Limpar formulário
                 document.getElementById('clear-form').addEventListener('click', () => {
                     document.getElementById('book-form').reset();
+                    document.getElementById('book-notes').placeholder = '';
                     document.getElementById('cover-name').textContent = 'Nenhum arquivo selecionado';
                     document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
                     document.getElementById('book-search-results').innerHTML = '';
@@ -743,7 +744,8 @@
                         const categories = Array.isArray(vi.categories) ? vi.categories : (vi.mainCategory ? [vi.mainCategory] : []);
                         const pdfLink = (ai.pdf?.isAvailable && ai.pdf?.downloadLink) ? (ai.pdf.downloadLink || '').replace(/^http:/, 'https:') : '';
                         const rawDesc = vi.description || '';
-                        const cleanDesc = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400);
+                        const cleaned = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                        const cleanDesc = cleaned.slice(0, 100) + (cleaned.length > 100 ? '...' : '');
                         const descAttr = encodeURIComponent(cleanDesc);
                         const catsAttr = encodeURIComponent(JSON.stringify(categories));
                         const pdfAttr = pdfLink.replace(/"/g, '&quot;');
@@ -772,13 +774,13 @@
                             try {
                                 description = decodeURIComponent(el.getAttribute('data-description') || '');
                             } catch (e) {}
-                            const notesText = description
-                                ? `O livro "${title}", de ${author}${description ? ': ' + description : ''}`
+                            const placeholder = description
+                                ? `O livro "${title}", de ${author}: ${description}`
                                 : `O livro "${title}", de ${author}.`;
                             document.getElementById('book-title').value = title;
                             document.getElementById('book-author').value = author;
                             document.getElementById('book-pages').value = pages || '1';
-                            document.getElementById('book-notes').value = notesText;
+                            document.getElementById('book-notes').placeholder = placeholder;
                             this.googleCoverUrl = cover || '';
                             this.googlePdfUrl = pdf || '';
                             this.fillGenreChips(this.mapGoogleCategoriesToGenres(categories));
@@ -856,6 +858,7 @@
                 this.renderBooks();
                 this.updateUI();
                 document.getElementById('book-form').reset();
+                document.getElementById('book-notes').placeholder = '';
                 document.getElementById('cover-name').textContent = 'Nenhum arquivo selecionado';
                 document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
                 document.getElementById('book-search-results').innerHTML = '';
