@@ -1154,10 +1154,26 @@
         /* ----- Detalhes do livro ----- */
         .book-details {
             display: none;
+            position: relative;
         }
         
         .book-details.active {
             display: block;
+        }
+        
+        .book-details .book-header {
+            padding-top: 40px;
+        }
+        
+        .delete-btn-corner {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            z-index: 2;
         }
         
         .book-header {
@@ -2123,7 +2139,7 @@
                 gap: 0;
                 margin-bottom: 0;
                 background: linear-gradient(180deg, #000000 0%, #141414 30%);
-                padding: 20px 20px 28px;
+                padding: 44px 20px 28px;
                 margin-left: 0;
                 margin-right: 0;
             }
@@ -2281,14 +2297,11 @@
                 font-size: 1rem;
                 min-height: 52px;
             }
-            .right-column .action-buttons {
-                margin: 0 20px 24px;
-                padding: 0;
-            }
-            .right-column .action-buttons #delete-book {
-                width: 100%;
-                padding: 14px;
-                border-radius: 14px;
+            .delete-btn-corner {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 0.875rem;
             }
             .right-column #tab-notes {
                 padding: 0 4px;
