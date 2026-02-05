@@ -348,7 +348,8 @@
                     const prev = ta.value;
                     ta.style.height = 'auto';
                     ta.value = prev || ta.placeholder || ' ';
-                    ta.style.height = Math.max(80, ta.scrollHeight) + 'px';
+                    const extra = 24;
+                    ta.style.height = Math.max(80, ta.scrollHeight + extra) + 'px';
                     ta.value = prev;
                 };
                 document.getElementById('book-notes').addEventListener('keydown', (e) => {
