@@ -742,9 +742,12 @@
                         let coverUrl = thumb ? thumb.replace(/^http:/, 'https:') : '';
                         const categories = Array.isArray(vi.categories) ? vi.categories : (vi.mainCategory ? [vi.mainCategory] : []);
                         const pdfLink = (ai.pdf?.isAvailable && ai.pdf?.downloadLink) ? (ai.pdf.downloadLink || '').replace(/^http:/, 'https:') : '';
+                        const rawDesc = vi.description || '';
+                        const cleanDesc = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400);
+                        const descAttr = encodeURIComponent(cleanDesc);
                         const catsAttr = encodeURIComponent(JSON.stringify(categories));
                         const pdfAttr = pdfLink.replace(/"/g, '&quot;');
-                        return `<div class="book-search-item" data-title="${title.replace(/"/g, '&quot;')}" data-author="${authors.replace(/"/g, '&quot;')}" data-pages="${pages}" data-cover="${coverUrl.replace(/"/g, '&quot;')}" data-categories="${catsAttr}" data-pdf="${pdfAttr}">
+                        return `<div class="book-search-item" data-title="${title.replace(/"/g, '&quot;')}" data-author="${authors.replace(/"/g, '&quot;')}" data-pages="${pages}" data-cover="${coverUrl.replace(/"/g, '&quot;')}" data-categories="${catsAttr}" data-pdf="${pdfAttr}" data-description="${descAttr}">
                             <img src="${coverUrl || 'https://via.placeholder.com/40x60/1a1a1a/555?text=Capa'}" alt="" class="book-search-thumb">
                             <div class="book-search-info">
                                 <strong>${title}</strong>
@@ -765,9 +768,17 @@
                                 categories = JSON.parse(raw);
                             } catch (e) {}
                             const pdf = (el.getAttribute('data-pdf') || '').replace(/&quot;/g, '"');
+                            let description = '';
+                            try {
+                                description = decodeURIComponent(el.getAttribute('data-description') || '');
+                            } catch (e) {}
+                            const notesText = description
+                                ? `O livro "${title}", de ${author}${description ? ': ' + description : ''}`
+                                : `O livro "${title}", de ${author}.`;
                             document.getElementById('book-title').value = title;
                             document.getElementById('book-author').value = author;
                             document.getElementById('book-pages').value = pages || '1';
+                            document.getElementById('book-notes').value = notesText;
                             this.googleCoverUrl = cover || '';
                             this.googlePdfUrl = pdf || '';
                             this.fillGenreChips(this.mapGoogleCategoriesToGenres(categories));
