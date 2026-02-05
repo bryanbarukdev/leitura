@@ -690,6 +690,8 @@
                     }
                     document.getElementById('audio-time-current').textContent = '0:00';
                     document.getElementById('audio-progress').value = 0;
+                    const pw = document.getElementById('audio-progress')?.parentElement;
+                    if (pw) pw.style.setProperty('--progress-pct', '0%');
                     document.getElementById('audio-play-pause').classList.remove('playing');
                 };
                 const startProgressPoll = () => {
@@ -699,9 +701,12 @@
                         const ct = this.ytPlayer.getCurrentTime();
                         const dur = this.ytPlayer.getDuration();
                         if (isFinite(ct) && isFinite(dur) && dur > 0) {
+                            const pct = (ct / dur) * 100;
                             document.getElementById('audio-time-current').textContent = fmtTime(ct);
                             document.getElementById('audio-time-total').textContent = fmtTime(dur);
-                            document.getElementById('audio-progress').value = (ct / dur) * 100;
+                            document.getElementById('audio-progress').value = pct;
+                            const wrap = document.getElementById('audio-progress')?.parentElement;
+                            if (wrap) wrap.style.setProperty('--progress-pct', pct + '%');
                         }
                     }, 250);
                 };
@@ -756,6 +761,8 @@
                 document.getElementById('audio-progress')?.addEventListener('input', (e) => {
                     if (!this.ytPlayer) return;
                     const pct = parseFloat(e.target.value);
+                    const wrap = e.target.parentElement;
+                    if (wrap) wrap.style.setProperty('--progress-pct', pct + '%');
                     const dur = this.ytPlayer.getDuration();
                     if (isFinite(dur) && dur > 0) {
                         this.ytPlayer.seekTo((pct / 100) * dur, true);
