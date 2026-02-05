@@ -42,14 +42,6 @@
     </div>
     
     <div id="app-panel" style="display:none">
-    <div class="main-tab-container">
-        <div class="main-tabs">
-            <div class="main-tab active" data-main-tab="dashboard">Dashboard</div>
-            <div class="main-tab" data-main-tab="session">Sessão de Leitura</div>
-        </div>
-    </div>
-    
-    <div id="main-tab-dashboard" class="main-tab-content">
     <div class="hero-features-wrap">
         <div id="bg-effects" aria-hidden="true">
             <div class="bg-grid"></div>
@@ -370,95 +362,6 @@
         </div>
     </div>
     
-    </div>
-    
-    <div id="main-tab-session" class="main-tab-content" aria-hidden="true">
-        <section class="session-section">
-            <h2 class="session-section-title">Sessão de Leitura</h2>
-            <p class="session-section-subtitle">Selecione o livro, inicie o timer e ao finalizar registre suas páginas.</p>
-        </section>
-        
-        <div class="session-container">
-            <div class="session-card session-book-select">
-                <div class="session-card-header">
-                    <div class="session-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>
-                    </div>
-                    <h3>Livro em leitura</h3>
-                </div>
-                <div class="session-card-body">
-                    <select id="session-book-select" aria-label="Selecione o livro">
-                        <option value="">Selecione um livro...</option>
-                    </select>
-                    <div id="session-book-preview" class="session-book-preview hidden">
-                        <img id="session-book-cover" src="" alt="">
-                        <div class="session-book-info">
-                            <strong id="session-book-title"></strong>
-                            <span id="session-book-author"></span>
-                            <span id="session-book-pages" class="session-meta"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="session-card session-timer-card">
-                <div class="session-card-header">
-                    <div class="session-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <h3>Tempo de leitura</h3>
-                </div>
-                <div class="session-card-body session-timer-body">
-                    <div class="session-timer-display" id="session-timer-display">00:00:00</div>
-                    <div class="session-timer-actions">
-                        <button type="button" class="session-btn session-btn-play" id="session-timer-play" aria-label="Iniciar">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                            Iniciar
-                        </button>
-                        <button type="button" class="session-btn session-btn-pause hidden" id="session-timer-pause" aria-label="Pausar">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                            Pausar
-                        </button>
-                        <button type="button" class="session-btn session-btn-reset" id="session-timer-reset" aria-label="Zerar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                            Zerar
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="session-card session-audio-card">
-                <div class="session-card-header">
-                    <div class="session-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                    </div>
-                    <h3>Áudio ambiente (YouTube)</h3>
-                </div>
-                <div class="session-card-body">
-                    <div class="session-youtube-wrap">
-                        <input type="text" id="session-youtube-url" placeholder="Cole o link do YouTube..." autocomplete="off">
-                        <button type="button" class="session-btn session-btn-load" id="session-youtube-load">Carregar</button>
-                    </div>
-                    <div id="session-youtube-player" class="session-youtube-player hidden">
-                        <div id="session-youtube-embed"></div>
-                        <div class="session-youtube-controls">
-                            <button type="button" class="session-btn session-btn-sm" id="session-youtube-play" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
-                            <button type="button" class="session-btn session-btn-sm" id="session-youtube-pause" aria-label="Pause"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
-                            <button type="button" class="session-btn session-btn-sm" id="session-youtube-stop" aria-label="Parar"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="session-finish-wrap">
-                <button type="button" class="session-finish-btn" id="session-finish-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Finalizar sessão e registrar
-                </button>
-            </div>
-        </div>
-    </div>
-    
     <footer class="main-footer">
         <div class="footer-content">
             <a href="#" class="footer-brand" aria-label="Leia+">
@@ -497,7 +400,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="js/config.js"></script>
     <script src="js/app.js"></script>
 </body>
