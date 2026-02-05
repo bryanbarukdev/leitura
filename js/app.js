@@ -1478,7 +1478,9 @@
         
         async function startApp() {
             const overlay = document.getElementById('auth-overlay');
+            const panel = document.getElementById('app-panel');
             if (overlay) overlay.classList.remove('visible');
+            if (panel) panel.style.display = '';
             const { books } = await loadBooksFromStorage();
             window.readingTracker = new ReadingTracker(books);
                 const user = supabaseClient ? await getCurrentUser() : null;
