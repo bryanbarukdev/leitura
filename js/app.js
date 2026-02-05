@@ -637,7 +637,6 @@
             }
             
             mapGoogleCategoriesToGenres(categories) {
-                if (!Array.isArray(categories) || categories.length === 0) return [];
                 const ourValues = ['ficcao', 'nao-ficcao', 'fantasia', 'ciencia', 'historia', 'biografia', 'tecnologia', 'autoajuda'];
                 const mapping = {
                     'ficcao': ['fiction', 'ficção', 'ficcion', 'novel', 'romance', 'mystery', 'thriller', 'suspense', 'horror', 'drama', 'literary', 'literature', 'literatura'],
@@ -650,7 +649,8 @@
                     'autoajuda': ['self-help', 'self help', 'autoajuda', 'psychology', 'psicologia', 'personal development', 'desenvolvimento pessoal', 'business', 'negócios']
                 };
                 const found = new Set();
-                for (const cat of categories) {
+                const cats = Array.isArray(categories) ? categories : (categories ? [categories] : []);
+                for (const cat of cats) {
                     const lower = String(cat).toLowerCase();
                     for (const [ourVal, keywords] of Object.entries(mapping)) {
                         if (keywords.some(kw => lower.includes(kw))) {
@@ -659,7 +659,12 @@
                         }
                     }
                 }
-                return ourValues.filter(v => found.has(v));
+                const mapped = ourValues.filter(v => found.has(v));
+                const MIN_TAGS = 3;
+                const fallbacks = ['ficcao', 'nao-ficcao', 'fantasia', 'ciencia', 'historia', 'biografia', 'tecnologia', 'autoajuda'];
+                if (mapped.length >= MIN_TAGS) return mapped;
+                const extra = fallbacks.filter(f => !mapped.includes(f)).slice(0, MIN_TAGS - mapped.length);
+                return [...mapped, ...extra];
             }
             
             updateFileConfirmUI() {
@@ -778,10 +783,6 @@
                 const author = document.getElementById('book-author').value.trim();
                 const pages = parseInt(document.getElementById('book-pages').value);
                 const genres = this.getGenresFromForm();
-                if (genres.length < 3) {
-                    Swal.fire({ title: 'Gêneros obrigatórios', text: 'Selecione pelo menos 3 gêneros para este livro.', icon: 'warning' });
-                    return;
-                }
                 const status = document.getElementById('book-status').value;
                 const notes = document.getElementById('book-notes').value.trim();
                 const coverFile = document.getElementById('book-cover').files[0];
