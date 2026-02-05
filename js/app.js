@@ -646,7 +646,7 @@
                     'historia': ['history', 'história', 'historia', 'historical'],
                     'biografia': ['biography', 'biografia', 'autobiography', 'autobiografia', 'memoir', 'memórias'],
                     'tecnologia': ['technology', 'tecnologia', 'computers', 'computação', 'computer', 'programming', 'programação'],
-                    'autoajuda': ['self-help', 'self help', 'autoajuda', 'psychology', 'psicologia', 'personal development', 'desenvolvimento pessoal', 'business', 'negócios']
+                    'autoajuda': ['self-help', 'self help', 'autoajuda', 'psychology', 'psicologia', 'personal development', 'desenvolvimento pessoal', 'business', 'negócios', 'finance', 'finanças', 'economics', 'economia', 'investments', 'investimentos']
                 };
                 const found = new Set();
                 const cats = Array.isArray(categories) ? categories : (categories ? [categories] : []);
@@ -659,12 +659,19 @@
                         }
                     }
                 }
-                const mapped = ourValues.filter(v => found.has(v));
+                let mapped = ourValues.filter(v => found.has(v));
+                if (mapped.includes('ficcao') && mapped.includes('nao-ficcao')) {
+                    mapped = mapped.filter(g => g !== 'ficcao');
+                }
                 const MIN_TAGS = 3;
-                const fallbacks = ['ficcao', 'nao-ficcao', 'fantasia', 'ciencia', 'historia', 'biografia', 'tecnologia', 'autoajuda'];
+                const fallbacks = ['nao-ficcao', 'autoajuda', 'ciencia', 'historia', 'biografia', 'fantasia', 'tecnologia', 'ficcao'];
                 if (mapped.length >= MIN_TAGS) return mapped;
                 const extra = fallbacks.filter(f => !mapped.includes(f)).slice(0, MIN_TAGS - mapped.length);
-                return [...mapped, ...extra];
+                let result = [...mapped, ...extra];
+                if (result.includes('ficcao') && result.includes('nao-ficcao')) {
+                    result = result.filter(g => g !== 'ficcao');
+                }
+                return result;
             }
             
             updateFileConfirmUI() {
