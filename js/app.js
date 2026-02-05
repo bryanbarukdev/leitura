@@ -342,11 +342,13 @@
                 });
                 
                 document.getElementById('book-notes').addEventListener('keydown', (e) => {
-                    if (e.key === 'F2') {
-                        e.preventDefault();
+                    if (e.key === 'Tab' && !e.shiftKey) {
                         const ta = document.getElementById('book-notes');
                         const ph = ta.placeholder || '';
-                        if (ph) { ta.value = ph; }
+                        if (ph) {
+                            e.preventDefault();
+                            ta.value = ph;
+                        }
                     }
                 });
                 
