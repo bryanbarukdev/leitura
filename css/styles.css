@@ -1041,13 +1041,13 @@
         }
         
         .reading-session.has-delete-btn .reading-session-main {
-            padding-right: 80px;
+            /* padding-right: 80px; */
         }
         
         .session-actions {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 18px;
+            right: 18px;
             display: flex;
             gap: 8px;
         }
