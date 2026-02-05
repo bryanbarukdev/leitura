@@ -1784,6 +1784,32 @@
             min-width: 0;
         }
         
+        /* Confirmação visual de capa/PDF adicionados */
+        .form-group.has-file {
+            position: relative;
+            padding-left: 10px;
+        }
+        
+        .form-group.has-file::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        
+        .form-group.has-file .file-name {
+            color: var(--accent);
+        }
+        
+        .form-group.has-file .file-name::before {
+            content: '✓ ';
+            font-weight: 600;
+        }
+        
         /* ----- Botão excluir ----- */
         .delete-btn {
             padding: 9px 11px;

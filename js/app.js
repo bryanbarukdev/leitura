@@ -148,6 +148,7 @@
                 this.selectedBookId = null;
                 this.detailFormDirty = false;
                 this.googleCoverUrl = '';
+                this.googlePdfUrl = '';
                 this.init();
             }
             
@@ -334,7 +335,9 @@
                     document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
                     document.getElementById('book-search-results').innerHTML = '';
                     this.googleCoverUrl = '';
+                    this.googlePdfUrl = '';
                     this.clearGenreChips();
+                    this.updateFileConfirmUI();
                 });
                 
                 // Busca Google Books
@@ -367,11 +370,13 @@
                         el.textContent = 'Nenhum arquivo selecionado';
                         el.removeAttribute('title');
                     }
+                    this.updateFileConfirmUI();
                 });
                 
                 // Upload de PDF (qualquer tamanho; nome longo é truncado na tela, título mostra completo)
                 document.getElementById('book-pdf').addEventListener('change', (e) => {
                     const file = e.target.files[0];
+                    if (file) this.googlePdfUrl = '';
                     const el = document.getElementById('pdf-name');
                     if (file) {
                         el.textContent = file.name;
@@ -380,6 +385,7 @@
                         el.textContent = 'Nenhum arquivo selecionado';
                         el.removeAttribute('title');
                     }
+                    this.updateFileConfirmUI();
                 });
                 
                 // Tabs
@@ -630,6 +636,47 @@
                 });
             }
             
+            mapGoogleCategoriesToGenres(categories) {
+                if (!Array.isArray(categories) || categories.length === 0) return [];
+                const ourValues = ['ficcao', 'nao-ficcao', 'fantasia', 'ciencia', 'historia', 'biografia', 'tecnologia', 'autoajuda'];
+                const mapping = {
+                    'ficcao': ['fiction', 'ficção', 'ficcion', 'novel', 'romance', 'mystery', 'thriller', 'suspense', 'horror', 'drama', 'literary', 'literature', 'literatura'],
+                    'nao-ficcao': ['non-fiction', 'nonfiction', 'não ficção', 'no ficcion', 'reference', 'referência'],
+                    'fantasia': ['fantasy', 'fantasia', 'science fiction', 'sci-fi', 'ficção científica', 'sciencia ficcion'],
+                    'ciencia': ['science', 'ciência', 'ciencia', 'mathematics', 'matemática', 'physics', 'física', 'biology', 'biologia'],
+                    'historia': ['history', 'história', 'historia', 'historical'],
+                    'biografia': ['biography', 'biografia', 'autobiography', 'autobiografia', 'memoir', 'memórias'],
+                    'tecnologia': ['technology', 'tecnologia', 'computers', 'computação', 'computer', 'programming', 'programação'],
+                    'autoajuda': ['self-help', 'self help', 'autoajuda', 'psychology', 'psicologia', 'personal development', 'desenvolvimento pessoal', 'business', 'negócios']
+                };
+                const found = new Set();
+                for (const cat of categories) {
+                    const lower = String(cat).toLowerCase();
+                    for (const [ourVal, keywords] of Object.entries(mapping)) {
+                        if (keywords.some(kw => lower.includes(kw))) {
+                            found.add(ourVal);
+                            break;
+                        }
+                    }
+                }
+                return ourValues.filter(v => found.has(v));
+            }
+            
+            updateFileConfirmUI() {
+                const hasCover = !!(
+                    document.getElementById('book-cover').files[0] ||
+                    (this.googleCoverUrl && this.googleCoverUrl.length > 0)
+                );
+                const hasPdf = !!(
+                    document.getElementById('book-pdf').files[0] ||
+                    (this.googlePdfUrl && this.googlePdfUrl.length > 0)
+                );
+                const coverGroup = document.getElementById('form-group-cover');
+                const pdfGroup = document.getElementById('form-group-pdf');
+                if (coverGroup) coverGroup.classList.toggle('has-file', !!hasCover);
+                if (pdfGroup) pdfGroup.classList.toggle('has-file', !!hasPdf);
+            }
+            
             setupGoogleBooksSearch() {
                 const input = document.getElementById('book-search');
                 const resultsEl = document.getElementById('book-search-results');
@@ -675,12 +722,17 @@
                     }
                     resultsEl.innerHTML = items.map(item => {
                         const vi = item.volumeInfo || {};
+                        const ai = item.accessInfo || {};
                         const title = vi.title || 'Sem título';
                         const authors = Array.isArray(vi.authors) ? vi.authors.join(', ') : (vi.authors || 'Autor desconhecido');
                         const pages = vi.pageCount || '';
                         const thumb = vi.imageLinks?.thumbnail || vi.imageLinks?.smallThumbnail || '';
                         let coverUrl = thumb ? thumb.replace(/^http:/, 'https:') : '';
-                        return `<div class="book-search-item" data-title="${title.replace(/"/g, '&quot;')}" data-author="${authors.replace(/"/g, '&quot;')}" data-pages="${pages}" data-cover="${coverUrl.replace(/"/g, '&quot;')}">
+                        const categories = Array.isArray(vi.categories) ? vi.categories : (vi.mainCategory ? [vi.mainCategory] : []);
+                        const pdfLink = (ai.pdf?.isAvailable && ai.pdf?.downloadLink) ? (ai.pdf.downloadLink || '').replace(/^http:/, 'https:') : '';
+                        const catsAttr = encodeURIComponent(JSON.stringify(categories));
+                        const pdfAttr = pdfLink.replace(/"/g, '&quot;');
+                        return `<div class="book-search-item" data-title="${title.replace(/"/g, '&quot;')}" data-author="${authors.replace(/"/g, '&quot;')}" data-pages="${pages}" data-cover="${coverUrl.replace(/"/g, '&quot;')}" data-categories="${catsAttr}" data-pdf="${pdfAttr}">
                             <img src="${coverUrl || 'https://via.placeholder.com/40x60/1a1a1a/555?text=Capa'}" alt="" class="book-search-thumb">
                             <div class="book-search-info">
                                 <strong>${title}</strong>
@@ -694,15 +746,26 @@
                             const title = el.getAttribute('data-title').replace(/&quot;/g, '"');
                             const author = el.getAttribute('data-author').replace(/&quot;/g, '"');
                             const pages = el.getAttribute('data-pages') || '1';
-                            const cover = el.getAttribute('data-cover').replace(/&quot;/g, '"');
+                            const cover = (el.getAttribute('data-cover') || '').replace(/&quot;/g, '"');
+                            let categories = [];
+                            try {
+                                const raw = decodeURIComponent(el.getAttribute('data-categories') || '[]');
+                                categories = JSON.parse(raw);
+                            } catch (e) {}
+                            const pdf = (el.getAttribute('data-pdf') || '').replace(/&quot;/g, '"');
                             document.getElementById('book-title').value = title;
                             document.getElementById('book-author').value = author;
                             document.getElementById('book-pages').value = pages || '1';
                             this.googleCoverUrl = cover || '';
+                            this.googlePdfUrl = pdf || '';
+                            this.fillGenreChips(this.mapGoogleCategoriesToGenres(categories));
                             document.getElementById('cover-name').textContent = cover ? 'Capa do Google Books' : 'Nenhum arquivo selecionado';
+                            document.getElementById('pdf-name').textContent = pdf ? 'PDF do Google Books' : 'Nenhum arquivo selecionado';
+                            document.getElementById('book-pdf').value = '';
                             document.getElementById('book-search').value = '';
                             resultsEl.innerHTML = '';
                             resultsEl.classList.remove('active');
+                            this.updateFileConfirmUI();
                         });
                     });
                 } catch (err) {
@@ -721,7 +784,7 @@
                 const pdfFile = document.getElementById('book-pdf').files[0];
                 
                 const coverPromise = coverFile ? this.readFileAsDataURL(coverFile) : Promise.resolve(this.googleCoverUrl || '');
-                const pdfPromise = pdfFile ? this.readFileAsDataURL(pdfFile) : Promise.resolve('');
+                const pdfPromise = pdfFile ? this.readFileAsDataURL(pdfFile) : Promise.resolve(this.googlePdfUrl || '');
                 
                 Promise.all([coverPromise, pdfPromise])
                     .then(([coverUrl, pdfUrl]) => {
@@ -774,6 +837,8 @@
                 document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
                 document.getElementById('book-search-results').innerHTML = '';
                 this.googleCoverUrl = '';
+                this.googlePdfUrl = '';
+                this.updateFileConfirmUI();
                 this.clearGenreChips();
                 Swal.fire({
                     title: this.selectedBookId ? 'Livro atualizado' : 'Livro cadastrado',
