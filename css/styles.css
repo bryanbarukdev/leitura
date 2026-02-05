@@ -438,6 +438,7 @@
         
         .stats-overview {
             display: flex;
+            margin-bottom: 25px;
             flex-wrap: wrap;
             gap: 16px;
         }
