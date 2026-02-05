@@ -332,6 +332,7 @@
                 document.getElementById('clear-form').addEventListener('click', () => {
                     document.getElementById('book-form').reset();
                     document.getElementById('book-notes').placeholder = '';
+                    if (this.resizeNotesTextarea) this.resizeNotesTextarea();
                     document.getElementById('cover-name').textContent = 'Nenhum arquivo selecionado';
                     document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
                     document.getElementById('book-search-results').innerHTML = '';
@@ -341,6 +342,15 @@
                     this.updateFileConfirmUI();
                 });
                 
+                this.resizeNotesTextarea = () => {
+                    const ta = document.getElementById('book-notes');
+                    if (!ta) return;
+                    const prev = ta.value;
+                    ta.style.height = 'auto';
+                    ta.value = prev || ta.placeholder || ' ';
+                    ta.style.height = Math.max(80, ta.scrollHeight) + 'px';
+                    ta.value = prev;
+                };
                 document.getElementById('book-notes').addEventListener('keydown', (e) => {
                     if (e.key === 'Tab' && !e.shiftKey) {
                         const ta = document.getElementById('book-notes');
@@ -348,9 +358,12 @@
                         if (ph) {
                             e.preventDefault();
                             ta.value = ph;
+                            this.resizeNotesTextarea();
                         }
                     }
                 });
+                document.getElementById('book-notes').addEventListener('input', () => this.resizeNotesTextarea());
+                document.getElementById('book-notes').addEventListener('focus', () => this.resizeNotesTextarea());
                 
                 // Busca Google Books
                 this.setupGoogleBooksSearch();
@@ -838,6 +851,7 @@
                             document.getElementById('book-author').value = author;
                             document.getElementById('book-pages').value = pages || '1';
                             document.getElementById('book-notes').placeholder = placeholder;
+                            if (typeof this.resizeNotesTextarea === 'function') this.resizeNotesTextarea();
                             this.googleCoverUrl = cover || '';
                             this.googlePdfUrl = pdf || '';
                             this.fillGenreChips(this.mapGoogleCategoriesToGenres(categories, title, description));
@@ -916,6 +930,7 @@
                 this.updateUI();
                 document.getElementById('book-form').reset();
                 document.getElementById('book-notes').placeholder = '';
+                if (this.resizeNotesTextarea) this.resizeNotesTextarea();
                 document.getElementById('cover-name').textContent = 'Nenhum arquivo selecionado';
                 document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
                 document.getElementById('book-search-results').innerHTML = '';

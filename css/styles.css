@@ -1821,6 +1821,12 @@
             display: block;
         }
         
+        #book-notes {
+            resize: none;
+            min-height: 80px;
+            overflow-y: auto;
+        }
+        
         .notes-hint-kbd {
             color: var(--accent);
             font-weight: 600;
