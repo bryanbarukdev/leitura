@@ -1974,6 +1974,14 @@
             color: var(--text) !important;
         }
         
+        .edit-session-notes {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .edit-session-notes::-webkit-scrollbar {
+            display: none !important;
+        }
+        
         /* ========== LAYOUT MOBILE (APP ESTILO IPHONE) ========== */
         .mobile-only {
             display: none !important;

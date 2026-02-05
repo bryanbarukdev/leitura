@@ -822,7 +822,7 @@
                             </div>
                             <div>
                                 <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Observações</label>
-                                <textarea id="edit-notes" rows="2" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px;resize:vertical">${(session.notes || '').replace(/</g, '&lt;')}</textarea>
+                                <textarea id="edit-notes" class="edit-session-notes" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px;resize:none;overflow-y:hidden;min-height:88px">${(session.notes || '').replace(/</g, '&lt;')}</textarea>
                             </div>
                         </div>
                     `,
@@ -831,6 +831,16 @@
                     cancelButtonText: 'Cancelar',
                     confirmButtonColor: '#3b82f6',
                     width: '420px',
+                    didOpen: () => {
+                        const ta = document.getElementById('edit-notes');
+                        if (!ta) return;
+                        const adjust = () => {
+                            ta.style.height = 'auto';
+                            ta.style.height = Math.max(88, ta.scrollHeight + 8) + 'px';
+                        };
+                        adjust();
+                        ta.addEventListener('input', adjust);
+                    },
                     preConfirm: () => {
                         const popup = Swal.getPopup();
                         const date = popup.querySelector('#edit-date').value;
