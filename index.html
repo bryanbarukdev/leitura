@@ -408,20 +408,24 @@
                             <span class="audio-time-total" id="audio-time-total">0:00</span>
                         </div>
                         <div class="audio-controls-row">
-                            <button type="button" class="audio-btn audio-btn-sm" id="audio-back" aria-label="Retroceder 10s" title="Retroceder 10s">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-                            </button>
+                            <div class="audio-controls-left">
+                                <button type="button" class="audio-btn audio-btn-speed" id="audio-speed" title="Velocidade">1x</button>
+                                <button type="button" class="audio-btn audio-btn-sm" id="audio-back" aria-label="Retroceder 10s" title="Retroceder 10s">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+                                </button>
+                            </div>
                             <button type="button" class="audio-btn audio-btn-main" id="audio-play-pause" aria-label="Play/Pause">
                                 <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                                 <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                             </button>
-                            <button type="button" class="audio-btn audio-btn-sm" id="audio-forward" aria-label="Avançar 10s" title="Avançar 10s">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-                            </button>
-                            <button type="button" class="audio-btn audio-btn-sm" id="audio-loop" aria-label="Repetir" title="Repetir">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-                            </button>
-                            <button type="button" class="audio-btn audio-btn-speed" id="audio-speed" title="Velocidade">1x</button>
+                            <div class="audio-controls-right">
+                                <button type="button" class="audio-btn audio-btn-sm" id="audio-forward" aria-label="Avançar 10s" title="Avançar 10s">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+                                </button>
+                                <button type="button" class="audio-btn audio-btn-sm" id="audio-loop" aria-label="Repetir" title="Repetir">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div id="youtube-player-host" class="youtube-player-hidden" aria-hidden="true"></div>
