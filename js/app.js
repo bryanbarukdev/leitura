@@ -657,6 +657,9 @@
                 
                 this.ytPlayer = null;
                 this.ytProgressInterval = null;
+                this.ytLoop = false;
+                this.ytSpeedIndex = 0;
+                const SPEEDS = [1, 1.25, 1.5, 1.75, 2];
                 const fmtTime = (s) => {
                     const m = Math.floor(s / 60);
                     const sec = Math.floor(s % 60);
@@ -677,7 +680,16 @@
                                     document.getElementById('audio-time-total').textContent = isFinite(d) && d > 0 ? fmtTime(d) : '0:00';
                                 },
                                 onStateChange: (e) => {
-                                    if (e.data === 0 || e.data === 2) {
+                                    if (e.data === 0) {
+                                        stopProgressPoll();
+                                        document.getElementById('audio-play-pause').classList.remove('playing');
+                                        if (this.ytLoop && this.ytPlayer) {
+                                            this.ytPlayer.seekTo(0, true);
+                                            this.ytPlayer.playVideo();
+                                            startProgressPoll();
+                                            document.getElementById('audio-play-pause').classList.add('playing');
+                                        }
+                                    } else if (e.data === 2) {
                                         stopProgressPoll();
                                         document.getElementById('audio-play-pause').classList.remove('playing');
                                     } else if (e.data === 1) {
@@ -693,6 +705,10 @@
                     const prog = document.getElementById('audio-progress');
                     if (prog) prog.style.setProperty('--progress-pct', '0%');
                     document.getElementById('audio-play-pause').classList.remove('playing');
+                    this.ytLoop = false;
+                    this.ytSpeedIndex = 0;
+                    document.getElementById('audio-loop').classList.remove('active');
+                    document.getElementById('audio-speed').textContent = '1x';
                 };
                 const startProgressPoll = () => {
                     if (this.ytProgressInterval) clearInterval(this.ytProgressInterval);
@@ -757,6 +773,29 @@
                         startProgressPoll();
                     }
                     document.getElementById('audio-play-pause').classList.toggle('playing', !playing);
+                });
+                document.getElementById('audio-back')?.addEventListener('click', () => {
+                    if (!this.ytPlayer) return;
+                    const ct = this.ytPlayer.getCurrentTime();
+                    this.ytPlayer.seekTo(Math.max(0, ct - 10), true);
+                });
+                document.getElementById('audio-forward')?.addEventListener('click', () => {
+                    if (!this.ytPlayer) return;
+                    const ct = this.ytPlayer.getCurrentTime();
+                    const dur = this.ytPlayer.getDuration();
+                    this.ytPlayer.seekTo(Math.min(dur || Infinity, ct + 10), true);
+                });
+                document.getElementById('audio-loop')?.addEventListener('click', () => {
+                    this.ytLoop = !this.ytLoop;
+                    document.getElementById('audio-loop').classList.toggle('active', this.ytLoop);
+                });
+                document.getElementById('audio-speed')?.addEventListener('click', () => {
+                    this.ytSpeedIndex = (this.ytSpeedIndex + 1) % SPEEDS.length;
+                    const rate = SPEEDS[this.ytSpeedIndex];
+                    document.getElementById('audio-speed').textContent = rate + 'x';
+                    if (this.ytPlayer && this.ytPlayer.setPlaybackRate) {
+                        this.ytPlayer.setPlaybackRate(rate);
+                    }
                 });
                 document.getElementById('audio-progress')?.addEventListener('input', (e) => {
                     if (!this.ytPlayer) return;
