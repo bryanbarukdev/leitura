@@ -882,20 +882,6 @@
             box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
         }
         
-        .session-finish-modal-box h4 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text);
-            margin: 0 0 4px 0;
-        }
-        
-        .session-finish-hint {
-            font-size: 0.8125rem;
-            color: var(--text-muted);
-            margin: 0 0 24px 0;
-            line-height: 1.4;
-        }
-        
         .session-finish-form-inner {
             display: flex;
             flex-direction: column;
@@ -926,11 +912,11 @@
             line-height: 1.3;
         }
         
-        .session-finish-form input,
-        .session-finish-form textarea {
+        .session-finish-modal-box input,
+        .session-finish-modal-box textarea {
             padding: 12px 14px;
-            background: #222;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             font-size: 0.9375rem;
             color: var(--text);
@@ -951,8 +937,8 @@
         
         .session-finish-modal-box .form-group.rating-group {
             padding: 18px 20px;
-            background: #222;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             border-radius: var(--radius-sm);
         }
         
@@ -993,7 +979,7 @@
             margin-bottom: 8px;
         }
         
-        .session-finish-form textarea {
+        .session-finish-modal-box textarea {
             min-height: 88px;
             resize: vertical;
         }
