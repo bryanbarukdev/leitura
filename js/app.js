@@ -1272,15 +1272,16 @@
             
             renderReadingSessions() {
                 const container = document.getElementById('sessions-container');
+                if (!container) return;
                 const book = this.books.find(b => b.id === this.selectedBookId);
-                
-                if (!book || book.readingSessions.length === 0) {
+                const sessions = Array.isArray(book?.readingSessions) ? book.readingSessions : [];
+                if (!book || sessions.length === 0) {
                     container.innerHTML = '<div class="no-data">Nenhuma sessão de leitura registrada</div>';
                     return;
                 }
                 
                 // Ordenar por data: mais recente no topo (desempate: último cadastrado primeiro)
-                const sortedSessions = [...book.readingSessions]
+                const sortedSessions = [...sessions]
                     .map((s, i) => ({ s, i, t: new Date(s.date).getTime() }))
                     .sort((a, b) => {
                         const ta = isNaN(a.t) ? 0 : a.t;
@@ -1289,7 +1290,7 @@
                         return b.i - a.i;
                     })
                     .map(x => x.s);
-                const lastAddedSession = book.readingSessions[book.readingSessions.length - 1];
+                const lastAddedSession = sessions[sessions.length - 1];
                 
                 container.innerHTML = '';
                 
@@ -1317,11 +1318,12 @@
                         </div>`
                         : '';
                     
+                    const notesSafe = (session.notes || 'Sem observações').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
                     sessionElement.innerHTML = `
                         <div class="reading-session-main">
                             <div class="reading-date">${formattedDate}</div>
                             <h4>Páginas ${session.startPage} a ${session.endPage}</h4>
-                            <p>${session.notes || 'Sem observações'}</p>
+                            <p>${notesSafe}</p>
                             <div class="reading-info">
                                 <span>${session.time} minutos</span>
                                 <span class="star-rating star-rating-display">${starsHtml}</span>
@@ -1332,9 +1334,10 @@
                     
                     if (isLastAdded) {
                         sessionElement.classList.add('has-delete-btn');
-                        sessionElement.dataset.sessionData = JSON.stringify({ id: session.id, date: dateForInput, time: session.time, startPage: session.startPage, endPage: session.endPage, rating: session.rating || 4, notes: session.notes || '' });
-                        sessionElement.querySelector('.btn-edit-session').addEventListener('click', () => this.openEditSessionModal(session));
-                        sessionElement.querySelector('.btn-delete-session').addEventListener('click', () => this.deleteSession(session.id));
+                        const editBtn = sessionElement.querySelector('.btn-edit-session');
+                        const delBtn = sessionElement.querySelector('.btn-delete-session');
+                        if (editBtn) editBtn.addEventListener('click', () => this.openEditSessionModal(session));
+                        if (delBtn) delBtn.addEventListener('click', () => this.deleteSession(session.id));
                     }
                     container.appendChild(sessionElement);
                 });
