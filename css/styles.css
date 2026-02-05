@@ -845,16 +845,44 @@
         .audio-btn-main:not(.playing) .icon-pause { display: none !important; }
         .audio-btn-main:not(.playing) .icon-play { display: block; }
         
-        /* ----- Formulário Registrar sessão (Sessão de Leitura) - mesmo padrão do Dashboard ----- */
-        .session-finish-form {
+        /* ----- Modal Registrar sessão (Sessão de Leitura) - flutuante ----- */
+        .session-finish-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            padding-top: max(24px, env(safe-area-inset-top));
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
+        }
+        .session-finish-modal[hidden] {
+            display: none !important;
+            pointer-events: none;
+        }
+        .session-finish-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .session-finish-modal-box {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
             background: var(--surface-2);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 24px;
-            margin-top: 24px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
         }
         
-        .session-finish-form h4 {
+        .session-finish-modal-box h4 {
             font-size: 1.25rem;
             font-weight: 600;
             color: var(--text);
@@ -874,21 +902,21 @@
             gap: 24px;
         }
         
-        .session-finish-form .form-row {
+        .session-finish-modal-box .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
             align-items: start;
         }
         
-        .session-finish-form .form-row .form-group {
+        .session-finish-modal-box .form-row .form-group {
             display: flex;
             flex-direction: column;
             gap: 0;
             min-width: 0;
         }
         
-        .session-finish-form label {
+        .session-finish-modal-box label {
             font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-muted);
@@ -909,26 +937,26 @@
             width: 100%;
         }
         
-        .session-finish-form input::placeholder,
-        .session-finish-form textarea::placeholder {
+        .session-finish-modal-box input::placeholder,
+        .session-finish-modal-box textarea::placeholder {
             color: var(--text-soft);
         }
         
-        .session-finish-form input:focus,
-        .session-finish-form textarea:focus {
+        .session-finish-modal-box input:focus,
+        .session-finish-modal-box textarea:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-soft);
             outline: none;
         }
         
-        .session-finish-form .form-group.rating-group {
+        .session-finish-modal-box .form-group.rating-group {
             padding: 18px 20px;
             background: #222;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-sm);
         }
         
-        .session-finish-form .rating-group label {
+        .session-finish-modal-box .rating-group label {
             margin-bottom: 12px;
         }
         
@@ -954,14 +982,14 @@
         }
         
         .star-rating-session button.filled {
-            color: var(--accent);
+            color: var(--star);
         }
         
         .star-rating-session button:active {
             transform: scale(0.95);
         }
         
-        .session-finish-form .form-group:has(textarea) label {
+        .session-finish-modal-box .form-group:has(textarea) label {
             margin-bottom: 8px;
         }
         
@@ -970,7 +998,7 @@
             resize: vertical;
         }
         
-        .session-finish-form .form-actions {
+        .session-finish-modal-box .form-actions {
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -1027,7 +1055,7 @@
             .session-panel {
                 padding: 0 16px;
             }
-            .session-finish-form .form-row {
+            .session-finish-modal-box .form-row {
                 grid-template-columns: 1fr;
             }
             #session-timer-text {

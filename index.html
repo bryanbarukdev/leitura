@@ -432,10 +432,12 @@
                 </div>
             </div>
             
-            <div class="session-finish-form" id="session-finish-form" hidden>
-                <h4>Registrar sessão</h4>
-                <p class="session-finish-hint">Preencha os dados da sua leitura</p>
-                <form id="session-finish-form-inner" class="session-finish-form-inner" autocomplete="off">
+            <div class="session-finish-modal" id="session-finish-form" hidden aria-modal="true" aria-labelledby="session-finish-title">
+                <div class="session-finish-modal-backdrop" id="session-finish-backdrop" aria-hidden="true"></div>
+                <div class="session-finish-modal-box">
+                    <h4 id="session-finish-title">Registrar sessão</h4>
+                    <p class="session-finish-hint">Preencha os dados da sua leitura</p>
+                    <form id="session-finish-form-inner" class="session-finish-form-inner" autocomplete="off">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="session-finish-page">Página em que parou</label>
@@ -466,6 +468,7 @@
                         <button type="button" class="btn-cancel-session" id="session-cancel-finish">Cancelar</button>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
     </div>

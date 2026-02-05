@@ -827,6 +827,9 @@
                 document.getElementById('session-cancel-finish').addEventListener('click', () => {
                     document.getElementById('session-finish-form').hidden = true;
                 });
+                document.getElementById('session-finish-backdrop')?.addEventListener('click', () => {
+                    document.getElementById('session-finish-form').hidden = true;
+                });
                 
                 document.getElementById('session-finish-form-inner').addEventListener('submit', (e) => {
                     e.preventDefault();
