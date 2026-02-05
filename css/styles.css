@@ -619,15 +619,34 @@
         
         .session-audio-player {
             margin-top: 12px;
+            overflow: hidden;
         }
         
         .youtube-player-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-            opacity: 0;
-            pointer-events: none;
+            position: fixed !important;
+            left: -99999px !important;
+            top: -99999px !important;
+            width: 1px !important;
+            height: 1px !important;
+            overflow: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            z-index: -9999 !important;
+            clip: rect(0, 0, 0, 0) !important;
+        }
+        
+        .youtube-player-hidden iframe,
+        .youtube-player-hidden > div {
+            position: absolute !important;
+            left: -99999px !important;
+            width: 1px !important;
+            height: 1px !important;
+            min-width: 1px !important;
+            min-height: 1px !important;
+            max-width: 1px !important;
+            max-height: 1px !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
         }
         
         .audio-player-ui {
