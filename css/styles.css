@@ -845,6 +845,7 @@
         .audio-btn-main:not(.playing) .icon-pause { display: none !important; }
         .audio-btn-main:not(.playing) .icon-play { display: block; }
         
+        /* ----- Formulário Registrar sessão (Sessão de Leitura) - mesmo padrão do Dashboard ----- */
         .session-finish-form {
             background: var(--surface-2);
             border: 1px solid var(--border);
@@ -854,7 +855,7 @@
         }
         
         .session-finish-form h4 {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--text);
             margin: 0 0 4px 0;
@@ -863,26 +864,95 @@
         .session-finish-hint {
             font-size: 0.8125rem;
             color: var(--text-muted);
-            margin: 0 0 20px 0;
+            margin: 0 0 24px 0;
+            line-height: 1.4;
+        }
+        
+        .session-finish-form-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .session-finish-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+        
+        .session-finish-form .form-row .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-width: 0;
+        }
+        
+        .session-finish-form label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .session-finish-form input,
+        .session-finish-form textarea {
+            padding: 12px 14px;
+            background: #222;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            color: var(--text);
+            width: 100%;
+        }
+        
+        .session-finish-form input::placeholder,
+        .session-finish-form textarea::placeholder {
+            color: var(--text-soft);
+        }
+        
+        .session-finish-form input:focus,
+        .session-finish-form textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+            outline: none;
+        }
+        
+        .session-finish-form .form-group.rating-group {
+            padding: 18px 20px;
+            background: #222;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+        }
+        
+        .session-finish-form .rating-group label {
+            margin-bottom: 12px;
         }
         
         .star-rating-session {
             display: flex;
-            gap: 4px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 0;
         }
         
         .star-rating-session button {
-            padding: 6px 10px;
+            padding: 0;
             background: none;
             border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 1.75rem;
             cursor: pointer;
             transition: color 0.2s, transform 0.1s;
+            line-height: 1;
         }
         
-        .star-rating-session button:hover,
+        .star-rating-session button:hover {
+            transform: scale(1.1);
+        }
+        
         .star-rating-session button.filled {
             color: var(--accent);
         }
@@ -891,33 +961,59 @@
             transform: scale(0.95);
         }
         
+        .session-finish-form .form-group:has(textarea) label {
+            margin-bottom: 8px;
+        }
+        
+        .session-finish-form textarea {
+            min-height: 88px;
+            resize: vertical;
+        }
+        
+        .session-finish-form .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
         .btn-submit-session {
-            padding: 12px 24px;
+            padding: 14px 24px;
+            width: 100%;
             background: var(--accent);
             border: none;
             border-radius: var(--radius-sm);
             color: #fff;
             font-weight: 500;
+            font-size: 0.9375rem;
             cursor: pointer;
-            margin-right: 10px;
+            transition: background 0.2s, transform 0.1s;
         }
         
         .btn-submit-session:hover {
-            opacity: 0.9;
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+        
+        .btn-submit-session:active {
+            transform: translateY(0);
         }
         
         .btn-cancel-session {
-            padding: 12px 24px;
+            padding: 14px 24px;
+            width: 100%;
             background: transparent;
-            border: 1px solid var(--border);
+            border: none;
             border-radius: var(--radius-sm);
             color: var(--text-muted);
+            font-size: 0.9375rem;
             cursor: pointer;
+            transition: color 0.2s, background 0.2s;
         }
         
         .btn-cancel-session:hover {
-            border-color: var(--text-muted);
             color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
         }
         
         @media (max-width: 768px) {
@@ -930,6 +1026,9 @@
             }
             .session-panel {
                 padding: 0 16px;
+            }
+            .session-finish-form .form-row {
+                grid-template-columns: 1fr;
             }
             #session-timer-text {
                 font-size: 2.25rem;

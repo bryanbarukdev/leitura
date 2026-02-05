@@ -613,8 +613,8 @@
                     if (!book) return;
                     const pagesRead = this.calculatePagesRead(book);
                     this.sessionStartPage = pagesRead;
-                    this.sessionTimerSeconds = 0;
-                    document.getElementById('session-timer-text').textContent = formatTime(0);
+                    // Não reseta ao retomar de pausa; só zera ao finalizar a sessão
+                    document.getElementById('session-timer-text').textContent = formatTime(this.sessionTimerSeconds);
                     document.getElementById('session-timer-start').disabled = true;
                     document.getElementById('session-timer-pause').disabled = false;
                     document.getElementById('session-timer-finish').disabled = false;
