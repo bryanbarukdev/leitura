@@ -745,7 +745,7 @@
                         const pdfLink = (ai.pdf?.isAvailable && ai.pdf?.downloadLink) ? (ai.pdf.downloadLink || '').replace(/^http:/, 'https:') : '';
                         const rawDesc = vi.description || '';
                         const cleaned = rawDesc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-                        const cleanDesc = cleaned.slice(0, 100) + (cleaned.length > 100 ? '...' : '');
+                        const cleanDesc = cleaned.slice(0, 50) + (cleaned.length > 50 ? '...' : '');
                         const descAttr = encodeURIComponent(cleanDesc);
                         const catsAttr = encodeURIComponent(JSON.stringify(categories));
                         const pdfAttr = pdfLink.replace(/"/g, '&quot;');
