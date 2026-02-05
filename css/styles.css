@@ -1119,8 +1119,10 @@
         
         /* ----- Títulos de seção ----- */
         h2 {
-            font-size: 1rem;
+            font-size: 25px;
+            margin-bottom: 29px !important;
             font-weight: 600;
+            text-align: center;
             color: var(--text);
             margin-bottom: var(--space-sm);
         }
