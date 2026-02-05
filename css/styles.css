@@ -1810,6 +1810,17 @@
             font-weight: 600;
         }
         
+        .notes-hint {
+            display: none;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        
+        #form-group-notes:focus-within .notes-hint {
+            display: block;
+        }
+        
         /* ----- Botão excluir ----- */
         .delete-btn {
             padding: 9px 11px;

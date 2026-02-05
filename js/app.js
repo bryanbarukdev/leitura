@@ -341,6 +341,15 @@
                     this.updateFileConfirmUI();
                 });
                 
+                document.getElementById('book-notes').addEventListener('keydown', (e) => {
+                    if (e.key === 'F2') {
+                        e.preventDefault();
+                        const ta = document.getElementById('book-notes');
+                        const ph = ta.placeholder || '';
+                        if (ph) { ta.value = ph; }
+                    }
+                });
+                
                 // Busca Google Books
                 this.setupGoogleBooksSearch();
                 
