@@ -399,13 +399,22 @@
                     <button type="button" class="btn-load-audio" id="session-load-audio">Carregar</button>
                 </div>
                 <div class="session-audio-player" id="session-audio-player" hidden>
-                    <div class="session-audio-iframe-wrap">
-                        <iframe id="session-youtube-embed" title="Áudio YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <div class="audio-player-ui">
+                        <div class="audio-progress-row">
+                            <span class="audio-time-current" id="audio-time-current">0:00</span>
+                            <div class="audio-progress-wrap">
+                                <input type="range" class="audio-progress" id="audio-progress" min="0" max="100" value="0" step="0.1">
+                            </div>
+                            <span class="audio-time-total" id="audio-time-total">0:00</span>
+                        </div>
+                        <div class="audio-controls-row">
+                            <button type="button" class="audio-btn" id="audio-play-pause" aria-label="Play/Pause">
+                                <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="session-audio-controls">
-                        <button type="button" class="btn-audio" id="session-audio-play" aria-label="Play">▶</button>
-                        <button type="button" class="btn-audio" id="session-audio-pause" aria-label="Pause">⏸</button>
-                    </div>
+                    <div id="youtube-player-host" class="youtube-player-hidden" aria-hidden="true"></div>
                 </div>
             </div>
             
@@ -482,6 +491,7 @@
     </nav>
                         </div>
     
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
