@@ -260,21 +260,14 @@
             }
             
             setupEventListeners() {
-                document.querySelectorAll('.main-nav-tab').forEach(btn => {
+                document.querySelectorAll('.main-tab').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const tab = btn.getAttribute('data-main-tab');
-                        document.querySelectorAll('.main-nav-tab').forEach(b => {
-                            b.classList.remove('active');
-                            b.setAttribute('aria-selected', 'false');
-                        });
+                        document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
-                        btn.setAttribute('aria-selected', 'true');
                         document.getElementById('main-tab-dashboard').setAttribute('aria-hidden', tab !== 'dashboard');
                         document.getElementById('main-tab-session').setAttribute('aria-hidden', tab !== 'session');
-                        if (tab === 'session') {
-                            this.populateSessionBookSelect();
-                            this.initSessionParticles();
-                        }
+                        if (tab === 'session') this.populateSessionBookSelect();
                     });
                 });
                 
@@ -922,24 +915,6 @@
                 window.onYouTubeIframeAPIReady = () => { this.sessionYoutubeApiReady = true; };
             }
             
-            initSessionParticles() {
-                const el = document.getElementById('session-bg-particles');
-                if (!el || el.dataset.inited === '1') return;
-                el.dataset.inited = '1';
-                el.innerHTML = '';
-                const count = 20;
-                for (let i = 0; i < count; i++) {
-                    const p = document.createElement('span');
-                    p.className = 'particle session-particle';
-                    p.style.left = Math.random() * 100 + '%';
-                    p.style.top = Math.random() * 100 + '%';
-                    p.style.width = p.style.height = (4 + Math.random() * 8) + 'px';
-                    p.style.animationDelay = (Math.random() * 8) + 's';
-                    p.style.animationDuration = (14 + Math.random() * 12) + 's';
-                    el.appendChild(p);
-                }
-            }
-            
             populateSessionBookSelect() {
                 const sel = document.getElementById('session-book-select');
                 if (!sel) return;
@@ -1132,7 +1107,7 @@
                     document.getElementById('session-notes').value = notes;
                     this.saveReadingSession();
                     this.sessionTimerReset();
-                    document.querySelector('.main-nav-tab[data-main-tab="dashboard"]')?.click();
+                    document.querySelector('.main-tab[data-main-tab="dashboard"]')?.click();
                 });
             }
             

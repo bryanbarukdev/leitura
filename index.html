@@ -42,16 +42,12 @@
     </div>
     
     <div id="app-panel" style="display:none">
-    <nav class="main-app-nav" aria-label="Navegação principal do app">
-        <button type="button" class="main-nav-tab active" data-main-tab="dashboard" aria-selected="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-            Dashboard
-        </button>
-        <button type="button" class="main-nav-tab" data-main-tab="session" aria-selected="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-            Sessão de Leitura
-        </button>
-    </nav>
+    <div class="main-tab-container">
+        <div class="main-tabs">
+            <div class="main-tab active" data-main-tab="dashboard">Dashboard</div>
+            <div class="main-tab" data-main-tab="session">Sessão de Leitura</div>
+        </div>
+    </div>
     
     <div id="main-tab-dashboard" class="main-tab-content">
     <div class="hero-features-wrap">
@@ -377,20 +373,9 @@
     </div>
     
     <div id="main-tab-session" class="main-tab-content" aria-hidden="true">
-        <div class="session-effects-wrap">
-            <div class="session-bg-effects" aria-hidden="true">
-                <div class="session-bg-grid"></div>
-                <div class="session-bg-particles" id="session-bg-particles"></div>
-                <div class="session-bg-fade"></div>
-            </div>
-        </div>
-        <section class="session-hero">
-            <div class="session-hero-bg"></div>
-            <div class="session-hero-content">
-                <span class="session-badge">Modo foco</span>
-                <h1 class="session-title">Sessão de <span class="session-highlight">Leitura</span></h1>
-                <p class="session-subtitle">Selecione o livro, inicie o timer e mergulhe na leitura. Ao finalizar, registre suas páginas e avaliação.</p>
-            </div>
+        <section class="session-section">
+            <h2 class="session-section-title">Sessão de Leitura</h2>
+            <p class="session-section-subtitle">Selecione o livro, inicie o timer e ao finalizar registre suas páginas.</p>
         </section>
         
         <div class="session-container">
