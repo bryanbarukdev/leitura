@@ -140,11 +140,14 @@
         }
         
         // Classe para gerenciar os livros
+        const GOOGLE_BOOKS_API_KEY = (typeof window.GOOGLE_BOOKS_API_KEY !== 'undefined' ? window.GOOGLE_BOOKS_API_KEY : '') || '';
+        
         class ReadingTracker {
             constructor(initialBooks) {
                 this.books = Array.isArray(initialBooks) ? initialBooks.map(normalizeBook) : [];
                 this.selectedBookId = null;
                 this.detailFormDirty = false;
+                this.googleCoverUrl = '';
                 this.init();
             }
             
@@ -329,8 +332,13 @@
                     document.getElementById('book-form').reset();
                     document.getElementById('cover-name').textContent = 'Nenhum arquivo selecionado';
                     document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
+                    document.getElementById('book-search-results').innerHTML = '';
+                    this.googleCoverUrl = '';
                     this.clearGenreChips();
                 });
+                
+                // Busca Google Books
+                this.setupGoogleBooksSearch();
                 
                 // Excluir livro
                 document.getElementById('delete-book').addEventListener('click', () => {
@@ -350,6 +358,7 @@
                 // Upload de capa (qualquer tamanho; nome longo é truncado na tela, título mostra completo)
                 document.getElementById('book-cover').addEventListener('change', (e) => {
                     const file = e.target.files[0];
+                    if (file) this.googleCoverUrl = '';
                     const el = document.getElementById('cover-name');
                     if (file) {
                         el.textContent = file.name;
@@ -621,6 +630,86 @@
                 });
             }
             
+            setupGoogleBooksSearch() {
+                const input = document.getElementById('book-search');
+                const resultsEl = document.getElementById('book-search-results');
+                if (!input || !resultsEl) return;
+                let debounceTimer = null;
+                input.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    const q = input.value.trim();
+                    if (!q) {
+                        resultsEl.innerHTML = '';
+                        resultsEl.classList.remove('active');
+                        return;
+                    }
+                    debounceTimer = setTimeout(() => this.searchGoogleBooks(q, resultsEl), 400);
+                });
+                input.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        resultsEl.classList.remove('active');
+                    }, 200);
+                });
+                input.addEventListener('focus', () => {
+                    if (resultsEl.innerHTML) resultsEl.classList.add('active');
+                });
+            }
+            
+            async searchGoogleBooks(query, resultsEl) {
+                const apiKey = window.GOOGLE_BOOKS_API_KEY;
+                if (!apiKey) {
+                    resultsEl.innerHTML = '<div class="book-search-item book-search-empty">Configure GOOGLE_BOOKS_API_KEY em config.js</div>';
+                    resultsEl.classList.add('active');
+                    return;
+                }
+                resultsEl.innerHTML = '<div class="book-search-item book-search-loading">Buscando...</div>';
+                resultsEl.classList.add('active');
+                try {
+                    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5&key=${apiKey}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const items = data.items || [];
+                    if (items.length === 0) {
+                        resultsEl.innerHTML = '<div class="book-search-item book-search-empty">Nenhum resultado encontrado</div>';
+                        return;
+                    }
+                    resultsEl.innerHTML = items.map(item => {
+                        const vi = item.volumeInfo || {};
+                        const title = vi.title || 'Sem título';
+                        const authors = Array.isArray(vi.authors) ? vi.authors.join(', ') : (vi.authors || 'Autor desconhecido');
+                        const pages = vi.pageCount || '';
+                        const thumb = vi.imageLinks?.thumbnail || vi.imageLinks?.smallThumbnail || '';
+                        let coverUrl = thumb ? thumb.replace(/^http:/, 'https:') : '';
+                        return `<div class="book-search-item" data-title="${title.replace(/"/g, '&quot;')}" data-author="${authors.replace(/"/g, '&quot;')}" data-pages="${pages}" data-cover="${coverUrl.replace(/"/g, '&quot;')}">
+                            <img src="${coverUrl || 'https://via.placeholder.com/40x60/1a1a1a/555?text=Capa'}" alt="" class="book-search-thumb">
+                            <div class="book-search-info">
+                                <strong>${title}</strong>
+                                <span>${authors}</span>
+                                ${pages ? `<span class="book-search-pages">${pages} pág</span>` : ''}
+                            </div>
+                        </div>`;
+                    }).join('');
+                    resultsEl.querySelectorAll('.book-search-item[data-title]').forEach(el => {
+                        el.addEventListener('click', () => {
+                            const title = el.getAttribute('data-title').replace(/&quot;/g, '"');
+                            const author = el.getAttribute('data-author').replace(/&quot;/g, '"');
+                            const pages = el.getAttribute('data-pages') || '1';
+                            const cover = el.getAttribute('data-cover').replace(/&quot;/g, '"');
+                            document.getElementById('book-title').value = title;
+                            document.getElementById('book-author').value = author;
+                            document.getElementById('book-pages').value = pages || '1';
+                            this.googleCoverUrl = cover || '';
+                            document.getElementById('cover-name').textContent = cover ? 'Capa do Google Books' : 'Nenhum arquivo selecionado';
+                            document.getElementById('book-search').value = '';
+                            resultsEl.innerHTML = '';
+                            resultsEl.classList.remove('active');
+                        });
+                    });
+                } catch (err) {
+                    resultsEl.innerHTML = '<div class="book-search-item book-search-empty">Erro ao buscar. Tente novamente.</div>';
+                }
+            }
+            
             saveBook() {
                 const title = document.getElementById('book-title').value.trim();
                 const author = document.getElementById('book-author').value.trim();
@@ -631,7 +720,7 @@
                 const coverFile = document.getElementById('book-cover').files[0];
                 const pdfFile = document.getElementById('book-pdf').files[0];
                 
-                const coverPromise = coverFile ? this.readFileAsDataURL(coverFile) : Promise.resolve('');
+                const coverPromise = coverFile ? this.readFileAsDataURL(coverFile) : Promise.resolve(this.googleCoverUrl || '');
                 const pdfPromise = pdfFile ? this.readFileAsDataURL(pdfFile) : Promise.resolve('');
                 
                 Promise.all([coverPromise, pdfPromise])
@@ -683,6 +772,8 @@
                 document.getElementById('book-form').reset();
                 document.getElementById('cover-name').textContent = 'Nenhum arquivo selecionado';
                 document.getElementById('pdf-name').textContent = 'Nenhum arquivo selecionado';
+                document.getElementById('book-search-results').innerHTML = '';
+                this.googleCoverUrl = '';
                 this.clearGenreChips();
                 Swal.fire({
                     title: this.selectedBookId ? 'Livro atualizado' : 'Livro cadastrado',

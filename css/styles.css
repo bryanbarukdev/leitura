@@ -799,6 +799,117 @@
             gap: 14px;
         }
         
+        /* ----- Busca Google Books ----- */
+        .book-search-wrap {
+            position: relative;
+        }
+        
+        .book-search-wrap input {
+            width: 100%;
+        }
+        
+        .book-search-results {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+        
+        .book-search-results.active {
+            display: block;
+        }
+        
+        .book-search-results::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .book-search-results::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .book-search-results::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        .book-search-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .book-search-item:last-child {
+            border-bottom: none;
+        }
+        
+        .book-search-item[data-title]:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .book-search-thumb {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+            background: var(--border);
+        }
+        
+        .book-search-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .book-search-info strong {
+            font-size: 0.9375rem;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .book-search-info span {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .book-search-pages {
+            font-size: 0.75rem !important;
+            color: var(--text-soft) !important;
+        }
+        
+        .book-search-empty,
+        .book-search-loading {
+            cursor: default;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .book-search-loading {
+            color: var(--accent);
+        }
+        
         .genre-chips-outer {
             position: relative;
             margin-top: 4px;
