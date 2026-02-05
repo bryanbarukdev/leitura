@@ -778,6 +778,10 @@
                 const author = document.getElementById('book-author').value.trim();
                 const pages = parseInt(document.getElementById('book-pages').value);
                 const genres = this.getGenresFromForm();
+                if (genres.length < 3) {
+                    Swal.fire({ title: 'Gêneros obrigatórios', text: 'Selecione pelo menos 3 gêneros para este livro.', icon: 'warning' });
+                    return;
+                }
                 const status = document.getElementById('book-status').value;
                 const notes = document.getElementById('book-notes').value.trim();
                 const coverFile = document.getElementById('book-cover').files[0];
