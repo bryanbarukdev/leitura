@@ -95,7 +95,12 @@
     
     <section class="dashboard-section" id="dashboard-section">
         <div class="section-badge">Sua biblioteca</div>
-        <h2 class="dashboard-title">Dashboard</h2>
+        <nav class="main-tabs" role="tablist" aria-label="Alternar entre Dashboard e Sessão de Leitura">
+            <button type="button" class="main-tab active" role="tab" aria-selected="true" data-main-tab="dashboard">Dashboard</button>
+            <button type="button" class="main-tab" role="tab" aria-selected="false" data-main-tab="session">Sessão de Leitura</button>
+        </nav>
+        
+        <div id="main-panel-dashboard" class="main-panel active" role="tabpanel">
         <div class="stats-overview" id="stats-overview">
             <div class="stat-pill">
                 <span class="stat-pill-value" id="stat-total-books">0</span>
@@ -114,7 +119,6 @@
                 <span class="stat-pill-label">Tempo total</span>
             </div>
         </div>
-    </section>
     
     <div class="container app-container">
         <div class="left-column">
@@ -361,6 +365,86 @@
             </div>
         </div>
     </div>
+    </div>
+    
+    <div id="main-panel-session" class="main-panel" role="tabpanel" hidden>
+        <div class="session-panel">
+            <div class="session-header">
+                <h3 class="session-title">Sua sessão de leitura</h3>
+                <p class="session-subtitle">Selecione o livro, inicie o timer e mergulhe na leitura</p>
+            </div>
+            
+            <div class="session-book-select">
+                <label for="session-book-select">Livro em leitura</label>
+                <select id="session-book-select">
+                    <option value="">Selecione um livro...</option>
+                </select>
+            </div>
+            
+            <div class="session-timer-block">
+                <div class="session-timer-display">
+                    <span id="session-timer-text">00:00:00</span>
+                </div>
+                <div class="session-timer-controls">
+                    <button type="button" class="btn-timer btn-start" id="session-timer-start">Iniciar</button>
+                    <button type="button" class="btn-timer btn-pause" id="session-timer-pause" disabled>Pausar</button>
+                    <button type="button" class="btn-timer btn-finish" id="session-timer-finish" disabled>Encerrar sessão</button>
+                </div>
+            </div>
+            
+            <div class="session-audio-block">
+                <label for="session-youtube-url">Áudio do YouTube (opcional)</label>
+                <div class="session-youtube-row">
+                    <input type="text" id="session-youtube-url" placeholder="Cole o link do vídeo (ex: youtube.com/watch?v=...)" autocomplete="off">
+                    <button type="button" class="btn-load-audio" id="session-load-audio">Carregar</button>
+                </div>
+                <div class="session-audio-player" id="session-audio-player" hidden>
+                    <div class="session-audio-iframe-wrap">
+                        <iframe id="session-youtube-embed" title="Áudio YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="session-audio-controls">
+                        <button type="button" class="btn-audio" id="session-audio-play" aria-label="Play">▶</button>
+                        <button type="button" class="btn-audio" id="session-audio-pause" aria-label="Pause">⏸</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="session-finish-form" id="session-finish-form" hidden>
+                <h4>Registrar sessão</h4>
+                <p class="session-finish-hint">Preencha os dados da sua leitura</p>
+                <form id="session-finish-form-inner" autocomplete="off">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="session-finish-page">Página em que parou</label>
+                            <input type="number" id="session-finish-page" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="session-finish-date">Data</label>
+                            <input type="date" id="session-finish-date">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" id="session-finish-rating" value="4">
+                        <label>Avaliação (1-5)</label>
+                        <div class="star-rating-session" id="star-rating-session">
+                            <button type="button" data-rating="1">★</button>
+                            <button type="button" data-rating="2">★</button>
+                            <button type="button" data-rating="3">★</button>
+                            <button type="button" data-rating="4">★</button>
+                            <button type="button" data-rating="5">★</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="session-finish-notes">Observações</label>
+                        <textarea id="session-finish-notes" rows="2" placeholder="Como foi a leitura?"></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-session">Salvar sessão</button>
+                    <button type="button" class="btn-cancel-session" id="session-cancel-finish">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </section>
     
     <footer class="main-footer">
         <div class="footer-content">

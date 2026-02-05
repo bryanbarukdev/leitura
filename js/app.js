@@ -154,6 +154,8 @@
             
             init() {
                 this.setupEventListeners();
+                this.setupMainTabs();
+                this.setupSessionPanel();
                 this.setupStarRating();
                 this.setupGenreChips();
                 this.renderBooks();
@@ -552,6 +554,186 @@
                     document.addEventListener('mouseup', () => { if (rightCol.classList.contains('mobile-dragging')) onEnd(); });
                 }
                 
+            }
+            
+            setupMainTabs() {
+                const tabs = document.querySelectorAll('.main-tab');
+                const panels = document.querySelectorAll('.main-panel');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const key = tab.getAttribute('data-main-tab');
+                        tabs.forEach(t => {
+                            t.classList.toggle('active', t === tab);
+                            t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+                        });
+                        panels.forEach(p => {
+                            const match = p.id === 'main-panel-' + key;
+                            p.classList.toggle('active', match);
+                            p.hidden = !match;
+                        });
+                    });
+                });
+            }
+            
+            setupSessionPanel() {
+                this.sessionTimerSeconds = 0;
+                this.sessionTimerInterval = null;
+                this.sessionStartPage = 0;
+                this.youtubePlayer = null;
+                
+                this.populateSessionBooks = () => {
+                    const sel = document.getElementById('session-book-select');
+                    if (!sel) return;
+                    const current = sel.value;
+                    sel.innerHTML = '<option value="">Selecione um livro...</option>';
+                    this.books.filter(b => b.status !== 'concluido').forEach(book => {
+                        const opt = document.createElement('option');
+                        opt.value = book.id;
+                        opt.textContent = book.title;
+                        sel.appendChild(opt);
+                    });
+                    if (current) sel.value = current;
+                };
+                this.populateSessionBooks();
+                
+                const formatTime = (s) => {
+                    const h = Math.floor(s / 3600);
+                    const m = Math.floor((s % 3600) / 60);
+                    const sec = s % 60;
+                    return [h, m, sec].map(n => String(n).padStart(2, '0')).join(':');
+                };
+                
+                document.getElementById('session-timer-start').addEventListener('click', () => {
+                    const sel = document.getElementById('session-book-select');
+                    if (!sel.value) {
+                        Swal.fire({ title: 'Selecione um livro', text: 'Escolha o livro que está lendo antes de iniciar.', icon: 'info' });
+                        return;
+                    }
+                    const book = this.books.find(b => b.id === sel.value);
+                    if (!book) return;
+                    const pagesRead = this.calculatePagesRead(book);
+                    this.sessionStartPage = pagesRead;
+                    this.sessionTimerSeconds = 0;
+                    document.getElementById('session-timer-text').textContent = formatTime(0);
+                    document.getElementById('session-timer-start').disabled = true;
+                    document.getElementById('session-timer-pause').disabled = false;
+                    document.getElementById('session-timer-finish').disabled = false;
+                    this.sessionTimerInterval = setInterval(() => {
+                        this.sessionTimerSeconds++;
+                        document.getElementById('session-timer-text').textContent = formatTime(this.sessionTimerSeconds);
+                    }, 1000);
+                });
+                
+                document.getElementById('session-timer-pause').addEventListener('click', () => {
+                    if (this.sessionTimerInterval) {
+                        clearInterval(this.sessionTimerInterval);
+                        this.sessionTimerInterval = null;
+                    }
+                    document.getElementById('session-timer-start').disabled = false;
+                    document.getElementById('session-timer-pause').disabled = true;
+                });
+                
+                document.getElementById('session-timer-finish').addEventListener('click', () => {
+                    if (this.sessionTimerInterval) {
+                        clearInterval(this.sessionTimerInterval);
+                        this.sessionTimerInterval = null;
+                    }
+                    document.getElementById('session-timer-start').disabled = false;
+                    document.getElementById('session-timer-pause').disabled = true;
+                    document.getElementById('session-timer-finish').disabled = true;
+                    const sel = document.getElementById('session-book-select');
+                    const book = sel.value ? this.books.find(b => b.id === sel.value) : null;
+                    const lastPage = book ? this.calculatePagesRead(book) : 0;
+                    document.getElementById('session-finish-page').value = lastPage;
+                    document.getElementById('session-finish-page').min = lastPage;
+                    document.getElementById('session-finish-date').value = new Date().toISOString().slice(0, 10);
+                    document.getElementById('session-finish-rating').value = '4';
+                    document.getElementById('session-finish-notes').value = '';
+                    document.querySelectorAll('#star-rating-session button').forEach((btn, i) => {
+                        btn.classList.toggle('filled', i < 4);
+                    });
+                    document.getElementById('session-finish-form').hidden = false;
+                });
+                
+                document.getElementById('session-load-audio').addEventListener('click', () => {
+                    const url = document.getElementById('session-youtube-url').value.trim();
+                    let vid = '';
+                    if (url.includes('youtube.com/watch?v=')) vid = new URL(url).searchParams.get('v') || '';
+                    else if (url.includes('youtu.be/')) vid = url.split('youtu.be/')[1]?.split('?')[0] || '';
+                    if (!vid) {
+                        Swal.fire({ title: 'Link inválido', text: 'Cole um link do YouTube (youtube.com/watch?v=... ou youtu.be/...)', icon: 'warning' });
+                        return;
+                    }
+                    const iframe = document.getElementById('session-youtube-embed');
+                    iframe.src = 'https://www.youtube.com/embed/' + vid + '?enablejsapi=1';
+                    document.getElementById('session-audio-player').hidden = false;
+                });
+                
+                document.getElementById('session-audio-play')?.addEventListener('click', () => {
+                    const iframe = document.getElementById('session-youtube-embed');
+                    if (iframe?.contentWindow?.postMessage) {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    }
+                });
+                document.getElementById('session-audio-pause')?.addEventListener('click', () => {
+                    const iframe = document.getElementById('session-youtube-embed');
+                    if (iframe?.contentWindow?.postMessage) {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    }
+                });
+                
+                document.querySelectorAll('#star-rating-session button').forEach((btn, i) => {
+                    btn.addEventListener('click', () => {
+                        const r = i + 1;
+                        document.getElementById('session-finish-rating').value = r;
+                        document.querySelectorAll('#star-rating-session button').forEach((b, j) => b.classList.toggle('filled', j < r));
+                    });
+                });
+                
+                document.getElementById('session-cancel-finish').addEventListener('click', () => {
+                    document.getElementById('session-finish-form').hidden = true;
+                });
+                
+                document.getElementById('session-finish-form-inner').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const sel = document.getElementById('session-book-select');
+                    if (!sel.value) {
+                        Swal.fire({ title: 'Selecione um livro', text: 'É preciso escolher um livro.', icon: 'info' });
+                        return;
+                    }
+                    const book = this.books.find(b => b.id === sel.value);
+                    if (!book) return;
+                    const endPage = parseInt(document.getElementById('session-finish-page').value) || this.sessionStartPage;
+                    const date = document.getElementById('session-finish-date').value || new Date().toISOString().slice(0, 10);
+                    const rating = parseInt(document.getElementById('session-finish-rating').value) || 4;
+                    const notes = document.getElementById('session-finish-notes').value.trim();
+                    const pagesRead = endPage - this.sessionStartPage;
+                    if (endPage > book.pages || endPage < this.sessionStartPage) {
+                        Swal.fire({ title: 'Página inválida', text: `Informe uma página entre ${this.sessionStartPage} e ${book.pages}.`, icon: 'warning' });
+                        return;
+                    }
+                    const newSession = {
+                        id: Date.now().toString(),
+                        date,
+                        time: Math.floor(this.sessionTimerSeconds / 60),
+                        startPage: this.sessionStartPage,
+                        endPage,
+                        rating,
+                        notes,
+                        pagesRead
+                    };
+                    const idx = this.books.findIndex(b => b.id === sel.value);
+                    this.books[idx].readingSessions.push(newSession);
+                    if (endPage === book.pages) this.books[idx].status = 'concluido';
+                    else if (this.books[idx].status === 'nao-iniciado') this.books[idx].status = 'lendo';
+                    this.saveToLocalStorage();
+                    this.updateUI();
+                    this.updateStatsOverview();
+                    document.getElementById('session-finish-form').hidden = true;
+                    this.sessionTimerSeconds = 0;
+                    document.getElementById('session-timer-text').textContent = '00:00:00';
+                    Swal.fire({ title: 'Sessão salva', text: 'Sua leitura foi registrada com sucesso!', icon: 'success' });
+                });
             }
             
             exportBackup() {
@@ -1288,6 +1470,7 @@
                     bookElement.addEventListener('click', () => this.selectBook(book.id));
                     container.appendChild(bookElement);
                 });
+                if (this.populateSessionBooks) this.populateSessionBooks();
             }
             
             updateUI() {
