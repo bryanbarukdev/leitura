@@ -786,6 +786,97 @@
                 });
             }
             
+            openEditSessionModal(session) {
+                if (!this.selectedBookId) return;
+                const book = this.books.find(b => b.id === this.selectedBookId);
+                if (!book) return;
+                const dateVal = session.date ? new Date(session.date).toISOString().slice(0, 10) : '';
+                const ratingOpts = [1, 2, 3, 4, 5].map(n => `<option value="${n}" ${(session.rating || 4) === n ? 'selected' : ''}>${n} estrela${n > 1 ? 's' : ''}</option>`).join('');
+                Swal.fire({
+                    title: 'Editar sessão',
+                    html: `
+                        <div class="edit-session-form" style="text-align:left">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Data</label>
+                                    <input type="date" id="edit-date" value="${dateVal}" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px">
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Tempo (min)</label>
+                                    <input type="number" id="edit-time" min="1" value="${session.time || 0}" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px">
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Página inicial</label>
+                                    <input type="number" id="edit-start" min="0" max="${book.pages}" value="${session.startPage || 0}" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px">
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Página final</label>
+                                    <input type="number" id="edit-end" min="1" max="${book.pages}" value="${session.endPage || 0}" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px">
+                                </div>
+                            </div>
+                            <div style="margin-bottom:12px">
+                                <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Avaliação</label>
+                                <select id="edit-rating" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px">${ratingOpts}</select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:4px;text-transform:uppercase">Observações</label>
+                                <textarea id="edit-notes" rows="2" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px;resize:vertical">${(session.notes || '').replace(/</g, '&lt;')}</textarea>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Salvar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3b82f6',
+                    width: '420px',
+                    preConfirm: () => {
+                        const popup = Swal.getPopup();
+                        const date = popup.querySelector('#edit-date').value;
+                        const time = parseInt(popup.querySelector('#edit-time').value, 10);
+                        const startPage = parseInt(popup.querySelector('#edit-start').value, 10);
+                        const endPage = parseInt(popup.querySelector('#edit-end').value, 10);
+                        const rating = parseInt(popup.querySelector('#edit-rating').value, 10);
+                        const notes = (popup.querySelector('#edit-notes').value || '').trim();
+                        if (endPage > book.pages) {
+                            Swal.showValidationMessage(`Página final não pode ser maior que ${book.pages}`);
+                            return false;
+                        }
+                        if (startPage >= endPage) {
+                            Swal.showValidationMessage('Página inicial deve ser menor que a final');
+                            return false;
+                        }
+                        return { date, time, startPage, endPage, rating, notes };
+                    }
+                }).then((result) => {
+                    if (!result.isConfirmed || !result.value) return;
+                    const { date, time, startPage, endPage, rating, notes } = result.value;
+                    const bookIndex = this.books.findIndex(b => b.id === this.selectedBookId);
+                    const sess = this.books[bookIndex].readingSessions.find(s => s.id === session.id);
+                    if (!sess) return;
+                    sess.date = date;
+                    sess.time = time;
+                    sess.startPage = startPage;
+                    sess.endPage = endPage;
+                    sess.rating = rating;
+                    sess.notes = notes;
+                    sess.pagesRead = endPage - startPage;
+                    if (endPage === book.pages) {
+                        this.books[bookIndex].status = 'concluido';
+                    } else if (this.books[bookIndex].status === 'concluido') {
+                        const pagesRead = this.calculatePagesRead(this.books[bookIndex]);
+                        if (pagesRead < book.pages) this.books[bookIndex].status = 'lendo';
+                    } else if (this.books[bookIndex].status === 'nao-iniciado') {
+                        this.books[bookIndex].status = 'lendo';
+                    }
+                    this.saveToLocalStorage();
+                    this.updateStatsOverview();
+                    this.displayBookDetails();
+                    Swal.fire({ title: 'Sessão atualizada', text: 'Alterações salvas com sucesso.', icon: 'success' });
+                });
+            }
+            
             deleteBook(bookId) {
                 this.books = this.books.filter(book => book.id !== bookId);
                 if (this.selectedBookId === bookId) {
@@ -1215,10 +1306,15 @@
                         starsHtml += `<span class="star-svg ${filled}"><svg viewBox="0 0 24 24"><path d="${starPath}"/></svg></span>`;
                     }
                     
-                    // Só a última sessão cadastrada (última no array) pode ser excluída
+                    // Só a última sessão cadastrada pode ser editada e excluída
                     const isLastAdded = lastAddedSession && session === lastAddedSession;
-                    const deleteBtnHtml = isLastAdded
-                        ? `<button type="button" class="btn-delete-session" data-session-id="${session.id}" aria-label="Excluir sessão" title="Excluir sessão">×</button>`
+                    const actionsHtml = isLastAdded
+                        ? `<div class="session-actions">
+                            <button type="button" class="btn-edit-session" aria-label="Editar sessão" title="Editar sessão">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button type="button" class="btn-delete-session" aria-label="Excluir sessão" title="Excluir sessão">×</button>
+                        </div>`
                         : '';
                     
                     sessionElement.innerHTML = `
@@ -1231,11 +1327,13 @@
                                 <span class="star-rating star-rating-display">${starsHtml}</span>
                             </div>
                         </div>
-                        ${deleteBtnHtml}
+                        ${actionsHtml}
                     `;
                     
                     if (isLastAdded) {
                         sessionElement.classList.add('has-delete-btn');
+                        sessionElement.dataset.sessionData = JSON.stringify({ id: session.id, date: dateForInput, time: session.time, startPage: session.startPage, endPage: session.endPage, rating: session.rating || 4, notes: session.notes || '' });
+                        sessionElement.querySelector('.btn-edit-session').addEventListener('click', () => this.openEditSessionModal(session));
                         sessionElement.querySelector('.btn-delete-session').addEventListener('click', () => this.deleteSession(session.id));
                     }
                     container.appendChild(sessionElement);
