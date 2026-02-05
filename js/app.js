@@ -637,42 +637,88 @@
                 });
             }
             
-            mapGoogleCategoriesToGenres(categories) {
-                const ourValues = ['ficcao', 'nao-ficcao', 'fantasia', 'ciencia', 'historia', 'biografia', 'tecnologia', 'autoajuda'];
-                const mapping = {
-                    'ficcao': ['fiction', 'ficção', 'ficcion', 'novel', 'romance', 'mystery', 'thriller', 'suspense', 'horror', 'drama', 'literary', 'literature', 'literatura'],
-                    'nao-ficcao': ['non-fiction', 'nonfiction', 'não ficção', 'no ficcion', 'reference', 'referência'],
-                    'fantasia': ['fantasy', 'fantasia', 'science fiction', 'sci-fi', 'ficção científica', 'sciencia ficcion'],
-                    'ciencia': ['science', 'ciência', 'ciencia', 'mathematics', 'matemática', 'physics', 'física', 'biology', 'biologia'],
-                    'historia': ['history', 'história', 'historia', 'historical'],
-                    'biografia': ['biography', 'biografia', 'autobiography', 'autobiografia', 'memoir', 'memórias'],
-                    'tecnologia': ['technology', 'tecnologia', 'computers', 'computação', 'computer', 'programming', 'programação'],
-                    'autoajuda': ['self-help', 'self help', 'autoajuda', 'psychology', 'psicologia', 'personal development', 'desenvolvimento pessoal', 'business', 'negócios', 'finance', 'finanças', 'economics', 'economia', 'investments', 'investimentos']
+            mapGoogleCategoriesToGenres(categories, title = '', description = '') {
+                const GENRES = ['ficcao', 'nao-ficcao', 'fantasia', 'ciencia', 'historia', 'biografia', 'tecnologia', 'autoajuda'];
+                const scores = {};
+                GENRES.forEach(g => { scores[g] = 0; });
+
+                const categoryKeywords = {
+                    ficcao: ['fiction', 'ficção', 'ficcion', 'novel', 'romance', 'mystery', 'thriller', 'suspense', 'horror', 'drama', 'literary', 'literature', 'literatura', 'young adult', 'juvenile fiction', 'contemporary'],
+                    'nao-ficcao': ['non-fiction', 'nonfiction', 'não ficção', 'no ficcion', 'reference', 'referência', 'general'],
+                    fantasia: ['fantasy', 'fantasia', 'science fiction', 'sci-fi', 'ficção científica', 'speculative', 'paranormal', 'urban fantasy'],
+                    ciencia: ['science', 'ciência', 'ciencia', 'mathematics', 'matemática', 'physics', 'física', 'biology', 'biologia', 'chemistry', 'química', 'nature', 'natureza', 'astronomy', 'astronomia'],
+                    historia: ['history', 'história', 'historia', 'historical', 'histórico', 'war', 'guerra', 'political', 'político', 'military', 'militar'],
+                    biografia: ['biography', 'biografia', 'autobiography', 'autobiografia', 'memoir', 'memórias', 'life'],
+                    tecnologia: ['technology', 'tecnologia', 'computers', 'computação', 'computer', 'programming', 'programação', 'software', 'internet', 'web', 'digital'],
+                    autoajuda: ['self-help', 'self help', 'autoajuda', 'psychology', 'psicologia', 'personal development', 'desenvolvimento pessoal', 'business', 'negócios', 'finance', 'finanças', 'economics', 'economia', 'investments', 'investimentos', 'management', 'gestão', 'leadership', 'liderança', 'marketing', 'motivational', 'motivação', 'career', 'carreira']
                 };
-                const found = new Set();
+
+                const textKeywords = {
+                    ficcao: ['romance', 'novel', 'mistério', 'suspense', 'terror', 'drama', 'história de amor'],
+                    'nao-ficcao': ['guia ', 'manual ', 'como ', 'introdução', 'fundamentos'],
+                    fantasia: ['magia', 'dragões', 'elfos', 'fantasia', 'narnia', 'anéis', 'reino'],
+                    ciencia: ['universo', 'evolução', 'átomo', 'genética'],
+                    historia: ['história do ', 'história da ', 'história do brasil', 'segunda guerra', 'primeira guerra'],
+                    biografia: ['biografia', 'vida de ', 'memórias', 'autobiografia', 'diário de'],
+                    tecnologia: ['programação', 'código', 'software', 'python', 'javascript', 'computador', 'algoritmo'],
+                    autoajuda: ['pai rico', 'hábitos', 'poder do', 'inteligência', 'sucesso', 'dinheiro', 'investir', 'finanças', 'liderança', 'gestão', 'mindset']
+                };
+
                 const cats = Array.isArray(categories) ? categories : (categories ? [categories] : []);
+
                 for (const cat of cats) {
                     const lower = String(cat).toLowerCase();
-                    for (const [ourVal, keywords] of Object.entries(mapping)) {
+                    for (const [genre, keywords] of Object.entries(categoryKeywords)) {
                         if (keywords.some(kw => lower.includes(kw))) {
-                            found.add(ourVal);
+                            scores[genre] += 10;
                             break;
                         }
                     }
                 }
-                let mapped = ourValues.filter(v => found.has(v));
-                if (mapped.includes('ficcao') && mapped.includes('nao-ficcao')) {
-                    mapped = mapped.filter(g => g !== 'ficcao');
+
+                const titleLower = String(title).toLowerCase();
+                for (const [genre, keywords] of Object.entries(textKeywords)) {
+                    if (keywords.some(kw => titleLower.includes(kw))) scores[genre] += 6;
                 }
+
+                const descLower = String(description).slice(0, 400).toLowerCase();
+                for (const [genre, keywords] of Object.entries(textKeywords)) {
+                    if (keywords.some(kw => descLower.includes(kw))) scores[genre] += 3;
+                }
+
+                if (scores.ficcao > 0 && scores['nao-ficcao'] > 0) {
+                    if (scores.ficcao >= scores['nao-ficcao']) scores['nao-ficcao'] = 0;
+                    else scores.ficcao = 0;
+                }
+
+                const ranked = GENRES.filter(g => scores[g] > 0).sort((a, b) => scores[b] - scores[a]);
                 const MIN_TAGS = 3;
-                const fallbacks = ['nao-ficcao', 'autoajuda', 'ciencia', 'historia', 'biografia', 'fantasia', 'tecnologia', 'ficcao'];
-                if (mapped.length >= MIN_TAGS) return mapped;
-                const extra = fallbacks.filter(f => !mapped.includes(f)).slice(0, MIN_TAGS - mapped.length);
-                let result = [...mapped, ...extra];
+
+                if (ranked.length >= MIN_TAGS) return ranked.slice(0, 5);
+
+                const seed = (title + '|' + (cats[0] || '') + '|' + description.slice(0, 50)).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+                const FALLBACK_PACKS = [
+                    ['historia', 'biografia', 'fantasia'],
+                    ['tecnologia', 'ciencia', 'biografia'],
+                    ['fantasia', 'historia', 'tecnologia'],
+                    ['biografia', 'fantasia', 'ciencia'],
+                    ['historia', 'tecnologia', 'fantasia'],
+                    ['ciencia', 'fantasia', 'biografia'],
+                    ['tecnologia', 'historia', 'fantasia'],
+                    ['biografia', 'tecnologia', 'historia'],
+                    ['fantasia', 'ciencia', 'historia'],
+                    ['historia', 'biografia', 'tecnologia'],
+                    ['ciencia', 'historia', 'fantasia'],
+                    ['tecnologia', 'fantasia', 'biografia']
+                ];
+                const pack = FALLBACK_PACKS[seed % FALLBACK_PACKS.length];
+                const extra = pack.filter(g => !ranked.includes(g)).slice(0, MIN_TAGS - ranked.length);
+                let result = [...ranked, ...extra];
+
                 if (result.includes('ficcao') && result.includes('nao-ficcao')) {
                     result = result.filter(g => g !== 'ficcao');
                 }
-                return result;
+                return result.slice(0, Math.max(MIN_TAGS, result.length));
             }
             
             updateFileConfirmUI() {
@@ -783,7 +829,7 @@
                             document.getElementById('book-notes').placeholder = placeholder;
                             this.googleCoverUrl = cover || '';
                             this.googlePdfUrl = pdf || '';
-                            this.fillGenreChips(this.mapGoogleCategoriesToGenres(categories));
+                            this.fillGenreChips(this.mapGoogleCategoriesToGenres(categories, title, description));
                             document.getElementById('cover-name').textContent = cover ? 'Capa do Google Books' : 'Nenhum arquivo selecionado';
                             document.getElementById('pdf-name').textContent = pdf ? 'PDF do Google Books' : 'Nenhum arquivo selecionado';
                             document.getElementById('book-pdf').value = '';
